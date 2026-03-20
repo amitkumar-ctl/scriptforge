@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'DM Mono', monospace;
+    background-color: #080a0f;
+    color: #eef0f6;
+  }
+
+  /* Noise overlay on body */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+  }
+}
+
+@layer components {
+  .btn-generate {
+    @apply w-full py-3.5 font-syne font-bold tracking-wide rounded-lg border-0 cursor-pointer
+           bg-gradient-accent text-[#070d0a] transition-all duration-200;
+  }
+  .btn-generate:hover {
+    @apply -translate-y-px;
+    box-shadow: 0 8px 32px rgba(99, 220, 163, 0.25);
+  }
+  .btn-generate:disabled {
+    @apply opacity-50 cursor-not-allowed translate-y-0;
+    box-shadow: none;
+  }
+
+  .field-label {
+    @apply text-[10px] text-muted tracking-widest uppercase;
+  }
+
+  .field-input {
+    @apply bg-surface border border-white/7 rounded-md text-text font-mono text-xs px-3 py-2.5
+           outline-none transition-colors duration-200 w-full;
+  }
+  .field-input:focus {
+    @apply border-accent;
+  }
+
+  .card-surface {
+    @apply bg-surface border border-white/7 rounded-xl;
+  }
+}
