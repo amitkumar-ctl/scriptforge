@@ -1,23 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActiveView, selectActiveView } from '../store/slices/uiSlice';
-import { selectHistoryCount } from '../store/slices/historySlice';
-import { selectHistory } from '../store/slices/historySlice';
+import { selectHistory, selectHistoryCount, fetchHistory, clearHistory } from '../store/slices/historySlice';
 import { restoreFromHistory } from '../store/slices/scriptSlice';
+import { useAuth } from '../auth/AuthContext';
 import { PLATFORMS } from '../utils/constants';
 
-const navItems = (historyCount) => [
+const navItems = (count) => [
   { id: 'generator', icon: '⊞', label: 'Generator' },
-  { id: 'history',   icon: '◷', label: `History (${historyCount})` },
+  { id: 'history',   icon: '◷', label: `History (${count})` },
   { id: 'templates', icon: '⊟', label: 'Templates' },
 ];
 
+const mfeModules = [
+  { label: 'Platform Selector', color: '#63dca3', port: 3001 },
+  { label: 'Script Config',     color: '#f0a04b', port: 3002 },
+  { label: 'Output Viewer',     color: '#e05bf0', port: 3003 },
+  { label: 'History Panel',     color: '#5bc8e0', port: 3004 },
+];
 
 export default function Sidebar() {
-  const dispatch      = useDispatch();
-  const activeView    = useSelector(selectActiveView);
-  const historyCount  = useSelector(selectHistoryCount);
-  const history       = useSelector(selectHistory);
+  const dispatch     = useDispatch();
+  const { authFetch, user } = useAuth();
+  const activeView   = useSelector(selectActiveView);
+  const historyCount = useSelector(selectHistoryCount);
+  const history      = useSelector(selectHistory);
+
+  // Fetch history from API whenever user logs in
+  useEffect(() => {
+    if (user && authFetch) {
+      dispatch(fetchHistory({ authFetch }));
+    }
+    // Clear local history when user logs out
+    if (!user) {
+      dispatch(clearHistory());
+    }
+  }, [user]);
 
   const handleRestore = (item) => {
     dispatch(restoreFromHistory(item));
@@ -42,8 +60,7 @@ export default function Sidebar() {
                 : 'text-muted border-transparent hover:text-text hover:bg-white/3'}
             `}
           >
-            <span>{item.icon}</span>
-            {item.label}
+            <span>{item.icon}</span>{item.label}
           </button>
         ))}
       </div>
@@ -61,7 +78,7 @@ export default function Sidebar() {
                 className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-muted hover:text-text hover:bg-white/3 transition-all cursor-pointer text-left"
               >
                 <span style={{ color: platform?.color }}>{platform?.icon}</span>
-                <span className="truncate max-w-[130px]">{item.config.topic || 'Untitled'}</span>
+                <span className="truncate max-w-[130px]">{item.config?.topic || item.topic || 'Untitled'}</span>
               </button>
             );
           })}
