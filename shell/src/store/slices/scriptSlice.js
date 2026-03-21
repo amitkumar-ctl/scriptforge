@@ -1,23 +1,20 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-const API_BASE = 'http://localhost:4000';
-
-// ─── Async thunk ────────────────────────────────────────────────────
+// ─── Async thunk ──────────────────────────────────────────────────────
+// authFetch is passed in from the component via the thunk argument
+// so the token stays in AuthContext (never in Redux)
 export const generateScript = createAsyncThunk(
   'script/generate',
-  async ({ platform, config }, { rejectWithValue }) => {
+  async ({ platform, config, authFetch }, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${API_BASE}/api/script/generate`, {
+      const res = await authFetch('/api/script/generate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ platform, config }),
       });
-
       if (!res.ok) {
         const err = await res.json();
         return rejectWithValue(err.error || 'Generation failed');
       }
-
       const data = await res.json();
       return data.data;
     } catch (e) {
@@ -26,7 +23,7 @@ export const generateScript = createAsyncThunk(
   }
 );
 
-// ─── Duration defaults per platform ─────────────────────────────────
+// ─── Duration defaults per platform ──────────────────────────────────
 export const durationsByPlatform = {
   youtube:   ['3 min', '5 min', '8 min', '12 min', '20 min'],
   instagram: ['15 sec', '30 sec', '60 sec', '90 sec'],
@@ -37,33 +34,19 @@ export const durationsByPlatform = {
   custom:    ['1 min', '5 min', '10 min', 'Custom'],
 };
 
-// ─── Initial state ───────────────────────────────────────────────────
 const initialState = {
   platform: 'youtube',
-
   config: {
-    topic: '',
-    audience: '',
-    duration: '5 min',
-    tone: 'Energetic',
-    hook: 'Bold Claim',
-    language: 'English',
-    cta: 'Subscribe',
-    notes: '',
+    topic: '', audience: '', duration: '5 min',
+    tone: 'Energetic', hook: 'Bold Claim',
+    language: 'English', cta: 'Subscribe', notes: '',
   },
-
-  // Generated output
-  result: null,
-
-  // Async status
-  status: 'idle',      // 'idle' | 'loading' | 'succeeded' | 'failed'
-  error: null,
-
-  // Which output tab is active
+  result:    null,
+  status:    'idle',
+  error:     null,
   activeTab: 'script',
 };
 
-// ─── Slice ───────────────────────────────────────────────────────────
 const scriptSlice = createSlice({
   name: 'script',
   initialState,
@@ -81,47 +64,27 @@ const scriptSlice = createSlice({
       state.activeTab = action.payload;
     },
     clearResult(state) {
-      state.result = null;
-      state.status = 'idle';
-      state.error = null;
+      state.result = null; state.status = 'idle'; state.error = null;
     },
     restoreFromHistory(state, action) {
       const { platform, config, result } = action.payload;
-      state.platform = platform;
-      state.config = config;
-      state.result = result;
-      state.status = 'succeeded';
-      state.activeTab = 'script';
+      state.platform   = platform;
+      state.config     = config;
+      state.result     = result;
+      state.status     = 'succeeded';
+      state.activeTab  = 'script';
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(generateScript.pending, (state) => {
-        state.status = 'loading';
-        state.result = null;
-        state.error = null;
-      })
-      .addCase(generateScript.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.result = action.payload;
-        state.activeTab = 'script';
-      })
-      .addCase(generateScript.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload || 'Unknown error';
-      });
+      .addCase(generateScript.pending,   (state) => { state.status = 'loading'; state.result = null; state.error = null; })
+      .addCase(generateScript.fulfilled, (state, action) => { state.status = 'succeeded'; state.result = action.payload; state.activeTab = 'script'; })
+      .addCase(generateScript.rejected,  (state, action) => { state.status = 'failed'; state.error = action.payload || 'Unknown error'; });
   },
 });
 
-export const {
-  setPlatform,
-  setConfigField,
-  setActiveTab,
-  clearResult,
-  restoreFromHistory,
-} = scriptSlice.actions;
+export const { setPlatform, setConfigField, setActiveTab, clearResult, restoreFromHistory } = scriptSlice.actions;
 
-// ─── Selectors ───────────────────────────────────────────────────────
 export const selectPlatform  = (s) => s.script.platform;
 export const selectConfig    = (s) => s.script.config;
 export const selectResult    = (s) => s.script.result;
