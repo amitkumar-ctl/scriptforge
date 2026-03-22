@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "webpack serve --config webpack.config.js --mode development",
-    "build": "webpack --config webpack.config.js --mode production"
+    "build": "webpack --config webpack.config.js --mode production",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.5",
@@ -26,6 +28,7 @@
     "tailwindcss": "^3.4.4",
     "webpack": "^5.92.0",
     "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.4"
+    "webpack-dev-server": "^5.0.4",
+    "wrangler": "^4.76.0"
   }
 }
