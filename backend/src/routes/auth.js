@@ -9,7 +9,7 @@ const { setTokenCookies, clearTokenCookies } = require('../auth/cookieHelper');
 const requireAuth = require('../middleware/requireAuth');
 
 const router     = express.Router();
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:4001';
+const CLIENT_URL = process.env.SHELL_URL || 'http://localhost:4001';
 
 // ─── Shared OAuth success handler ─────────────────────────────────────
 async function handleOAuthSuccess(req, res, next) {

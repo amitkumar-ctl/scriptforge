@@ -8,12 +8,14 @@ const PLATFORM_URL = process.env.MFE_PLATFORM_URL || 'http://localhost:4002';
 const CONFIG_URL = process.env.MFE_CONFIG_URL || 'http://localhost:4003';
 const OUTPUT_URL = process.env.MFE_OUTPUT_URL || 'http://localhost:4004';
 const HISTORY_URL = process.env.MFE_HISTORY_URL || 'http://localhost:4005';
-const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4001';
+const SHELL_URL = process.env.SHELL_URL || 'http://localhost:4001';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+
 
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    publicPath: `${REACT_APP_API_URL}`,
+    publicPath: `${SHELL_URL}`,
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
     clean: true,
@@ -47,7 +49,7 @@ module.exports = {
         mfePlatform: `mfePlatform@${PLATFORM_URL}/remoteEntry.js`,
         mfeConfig: `mfeConfig@${CONFIG_URL}/remoteEntry.js`,
         mfeOutput: `mfeOutput@${OUTPUT_URL}/remoteEntry.js`,
-        mfeHistory: `mfeHistory@${HISTORY_URL}remoteEntry.js`,
+        mfeHistory: `mfeHistory@${HISTORY_URL}/remoteEntry.js`,
       },
       shared: {
         react: { singleton: true, requiredVersion: deps.react },
@@ -59,6 +61,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html',
       title: 'ScriptForge AI Script Generator',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.REACT_APP_API_URL': JSON.stringify(API_URL),
     }),
   ],
   devServer: {

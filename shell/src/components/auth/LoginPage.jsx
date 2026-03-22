@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 
-const API_BASE = 'http://localhost:4000'; // direct to backend for OAuth redirects
+const API_BASE = process.env.REACT_APP_API_URL ||'http://localhost:4000'; // direct to backend for OAuth redirects
 
 const providers = [
   {

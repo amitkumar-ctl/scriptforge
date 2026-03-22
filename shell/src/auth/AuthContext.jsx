@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 
-const API    = 'http://localhost:4000';
+const API    = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 const RT_KEY = 'sf_rt';
 
 const RT = {
