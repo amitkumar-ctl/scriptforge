@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import config from '../auth/config';
+const API_BASE = config.API_URL ||'http://localhost:4000';
 
-const API_BASE = process.env.REACT_APP_API_URL ||'http://localhost:4000'; // direct to backend for OAuth redirects
 
 const providers = [
   {
@@ -38,7 +39,7 @@ export default function LoginPage({ error }) {
   }, [user]);
 
   const handleLogin = (provider) => {
-    window.location.href = `http://localhost:4000/api/auth/${provider}`;
+    window.location.href = `${API_BASE}/api/auth/${provider}`;
   };
 
   return (

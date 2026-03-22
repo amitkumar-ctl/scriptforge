@@ -1,6 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const webpack = require('webpack');
 const path = require('path');
 
 const deps = require('./package.json').dependencies;
@@ -10,7 +9,6 @@ const PLATFORM_URL = process.env.MFE_PLATFORM_URL  || 'http://localhost:4002';
 const CONFIG_URL   = process.env.MFE_CONFIG_URL    || 'http://localhost:4003';
 const OUTPUT_URL   = process.env.MFE_OUTPUT_URL    || 'http://localhost:4004';
 const HISTORY_URL  = process.env.MFE_HISTORY_URL   || 'http://localhost:4005';
-const API_URL      = process.env.REACT_APP_API_URL || 'http://localhost:4000';
 
 module.exports = {
   entry: './src/index.jsx',
@@ -63,9 +61,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html',
       title: 'ScriptForge – AI Script Generator',
-    }),
-    new webpack.DefinePlugin({
-      'process.env.REACT_APP_API_URL': JSON.stringify(API_URL),
     }),
   ],
   devServer: {
