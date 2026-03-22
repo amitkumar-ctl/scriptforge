@@ -3,11 +3,13 @@ const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPl
 const path = require('path');
 
 const deps = require('./package.json').dependencies;
+const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:4004';
+
 
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    publicPath: 'http://localhost:4004/',
+    publicPath: `${PUBLIC_URL}`,
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
     clean: true,

@@ -4,10 +4,12 @@ const path = require('path');
 
 const deps = require('./package.json').dependencies;
 
+const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:4002';
+
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    publicPath: 'http://localhost:4002/',
+    publicPath: `${PUBLIC_URL}/`,
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
     clean: true,

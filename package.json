@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "install:all": "npm install && npm run install:workspaces",
-    "install:workspaces": "for dir in backend shell mfe-platform mfe-config mfe-output mfe-history; do cd $dir && npm install && cd ..; done",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:shell\" \"npm run dev:platform\" \"npm run dev:config\" \"npm run dev:output\" \"npm run dev:history\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:shell": "cd shell && npm run dev",
     "dev:platform": "cd mfe-platform && npm run dev",

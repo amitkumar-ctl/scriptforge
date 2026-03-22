@@ -4,10 +4,16 @@ const path = require('path');
 
 const deps = require('./package.json').dependencies;
 
+const PLATFORM_URL = process.env.MFE_PLATFORM_URL || 'http://localhost:4002';
+const CONFIG_URL = process.env.MFE_CONFIG_URL || 'http://localhost:4003';
+const OUTPUT_URL = process.env.MFE_OUTPUT_URL || 'http://localhost:4004';
+const HISTORY_URL = process.env.MFE_HISTORY_URL || 'http://localhost:4005';
+const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:4001';
+
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    publicPath: 'http://localhost:4001/',
+    publicPath: `${PUBLIC_URL}`,
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
     clean: true,
@@ -38,10 +44,10 @@ module.exports = {
       name: 'shell',
       remotes: {
         // Each MFE is loaded at runtime from its dev server
-        mfePlatform:  'mfePlatform@http://localhost:4002/remoteEntry.js',
-        mfeConfig:    'mfeConfig@http://localhost:4003/remoteEntry.js',
-        mfeOutput:    'mfeOutput@http://localhost:4004/remoteEntry.js',
-        mfeHistory:   'mfeHistory@http://localhost:4005/remoteEntry.js',
+        mfePlatform: `mfePlatform@${PLATFORM_URL}/remoteEntry.js`,
+        mfeConfig: `mfeConfig@${CONFIG_URL}/remoteEntry.js`,
+        mfeOutput: `mfeOutput@${OUTPUT_URL}/remoteEntry.js`,
+        mfeHistory: `mfeHistory@${HISTORY_URL}remoteEntry.js`,
       },
       shared: {
         react: { singleton: true, requiredVersion: deps.react },
