@@ -2,14 +2,6 @@
   "name": "scriptforge",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
-    "backend",
-    "shell",
-    "mfe-platform",
-    "mfe-config",
-    "mfe-output",
-    "mfe-history"
-  ],
   "scripts": {
     "install:all": "npm install && npm run install:workspaces",
     "install:workspaces": "for dir in backend shell mfe-platform mfe-config mfe-output mfe-history; do cd $dir && npm install && cd ..; done",
