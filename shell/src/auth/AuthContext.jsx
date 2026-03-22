@@ -79,17 +79,25 @@ export function AuthProvider({ children }) {
     } catch { return false; }
   }, [applyTokens]);
 
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes('access=')) {
-      const ok = handleCallback(hash);
-      if (!ok) clearSession();
-      setLoading(false);
-    } else {
-      doRefresh().finally(() => setLoading(false));
-    }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-  }, []);
+useEffect(() => {
+  const hash = window.location.hash;
+  const path = window.location.pathname;
+  console.log('[Auth] Mount - pathname:', path);
+  console.log('[Auth] Mount - hash:', hash);
+  console.log('[Auth] Mount - full URL:', window.location.href);
+
+  if (hash.includes('access=')) {
+    console.log('[Auth] Processing callback...');
+    const ok = handleCallback(hash);
+    console.log('[Auth] Callback result:', ok);
+    if (!ok) clearSession();
+    setLoading(false);
+  } else {
+    console.log('[Auth] No callback, trying silent refresh...');
+    doRefresh().finally(() => setLoading(false));
+  }
+  return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+}, []);
 
   const logout = useCallback(async () => {
     const rt = RT.load();
