@@ -15,6 +15,10 @@ const errorHandler = require('./middleware/errorHandler');
 const app  = express();
 const PORT = process.env.PORT || 4000;
 
+app.set('trust proxy', 1);
+
+`shell/public/_redirects`
+
 // ─── Security ─────────────────────────────────────────────────────────
 app.use(helmet({
   crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }, // needed for OAuth popups
