@@ -1,6 +1,6 @@
-const passport        = require('passport');
-const GoogleStrategy  = require('passport-google-oauth20').Strategy;
-const GitHubStrategy  = require('passport-github2').Strategy;
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const { findOrCreateUser } = require('./userService');
 
@@ -10,19 +10,19 @@ const BASE_URL = process.env.CLIENT_URL ? `http://localhost:${process.env.PORT |
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
   passport.use(new GoogleStrategy(
     {
-      clientID:     process.env.GOOGLE_CLIENT_ID,
+      clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL:  `${BASE_URL}/api/auth/google/callback`,
-      scope:        ['profile', 'email'],
+      callbackURL: `${BASE_URL}/api/auth/google/callback`,
+      scope: ['profile', 'email'],
     },
-    (accessToken, refreshToken, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
-        const user = findOrCreateUser({
-          provider:   'google',
+        const user = await findOrCreateUser({
+          provider: 'google',
           providerId: profile.id,
-          email:      profile.emails?.[0]?.value || null,
-          name:       profile.displayName,
-          avatar:     profile.photos?.[0]?.value || null,
+          email: profile.emails?.[0]?.value || null,
+          name: profile.displayName,
+          avatar: profile.photos?.[0]?.value || null,
         });
         done(null, user);
       } catch (err) {
@@ -39,19 +39,19 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
   passport.use(new GitHubStrategy(
     {
-      clientID:     process.env.GITHUB_CLIENT_ID,
+      clientID: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-      callbackURL:  `${BASE_URL}/api/auth/github/callback`,
-      scope:        ['user:email'],
+      callbackURL: `${BASE_URL}/api/auth/github/callback`,
+      scope: ['user:email'],
     },
     (accessToken, refreshToken, profile, done) => {
       try {
         const user = findOrCreateUser({
-          provider:   'github',
+          provider: 'github',
           providerId: String(profile.id),
-          email:      profile.emails?.[0]?.value || null,
-          name:       profile.displayName || profile.username,
-          avatar:     profile.photos?.[0]?.value || null,
+          email: profile.emails?.[0]?.value || null,
+          name: profile.displayName || profile.username,
+          avatar: profile.photos?.[0]?.value || null,
         });
         done(null, user);
       } catch (err) {

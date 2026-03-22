@@ -1,30 +1,34 @@
-/**
- * Centralized Express error handler.
- * Catches errors forwarded via next(err).
- */
 function errorHandler(err, req, res, _next) {
   console.error(`[Error] ${err.message}`);
-  if (err.stack && process.env.NODE_ENV !== 'production') {
-    console.error(err.stack);
-  }
 
-  // Anthropic SDK errors
-  if (err.status && err.error) {
-    return res.status(err.status).json({
-      error: err.error?.error?.message || 'Anthropic API error',
-      type: err.error?.error?.type,
+  // Determine status code
+  const status = err.status || err.statusCode || 500;
+
+  // Don't crash on expected auth errors — just return JSON
+  if (status === 401) {
+    return res.status(401).json({
+      error: err.message || 'Unauthorized',
+      code:  err.code || 'UNAUTHORIZED',
     });
   }
 
-  // Validation errors from express/cors
-  if (err.message?.includes('CORS')) {
-    return res.status(403).json({ error: err.message });
+  if (status === 403) {
+    return res.status(403).json({ error: err.message || 'Forbidden' });
   }
 
-  const statusCode = err.statusCode || err.status || 500;
-  res.status(statusCode).json({
-    error: err.message || 'Internal server error',
-    ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
+  if (status === 404) {
+    return res.status(404).json({ error: err.message || 'Not found' });
+  }
+
+  // Log stack in dev only
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(err.stack);
+  }
+
+  res.status(status).json({
+    error: process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : err.message || 'Internal server error',
   });
 }
 

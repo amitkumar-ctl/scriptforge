@@ -4,6 +4,7 @@ const cors       = require('cors');
 const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const { connectDB } = require('./db/database');
 const passport   = require('./auth/passport');   // registers strategies
 
 const scriptRoutes = require('./routes/script');
@@ -51,11 +52,20 @@ app.use('/api/script', scriptRoutes);
 app.use(errorHandler);
 app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} not found` }));
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 ScriptForge Backend → http://localhost:${PORT}`);
-  console.log(`🔑 API Key:  ${process.env.ANTHROPIC_API_KEY ? '✅' : '❌ Missing'}`);
-  console.log(`🔐 Google:   ${process.env.GOOGLE_CLIENT_ID  ? '✅' : '⚠️  Not configured'}`);
-  console.log(`🐙 GitHub:   ${process.env.GITHUB_CLIENT_ID  ? '✅' : '⚠️  Not configured'}`);
-});
+
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`\n🚀 ScriptForge Backend → http://localhost:${PORT}`);
+      console.log(`🔑 API Key:  ${process.env.ANTHROPIC_API_KEY ? '✅' : '❌ Missing'}`);
+      console.log(`🔐 Google:   ${process.env.GOOGLE_CLIENT_ID  ? '✅' : '⚠️  Not configured'}`);
+      console.log(`🐙 GitHub:   ${process.env.GITHUB_CLIENT_ID  ? '✅' : '⚠️  Not configured'}`);
+    });
+  })
+  .catch((err) => {
+    console.error('❌ Failed to connect to MongoDB:', err.message);
+    process.exit(1);
+  });
 
 module.exports = app;
