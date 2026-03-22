@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy ,useState} from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import store from './store';
@@ -31,28 +31,23 @@ function LoadingScreen() {
 function Main() {
   const { user, loading } = useAuth();
   const view = useSelector(selectActiveView);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isCallback = window.location.pathname === '/auth/callback';
-
-  if (isCallback && loading) return <LoadingScreen />;
-
-  if (isCallback && !loading) {
-    window.history.replaceState(null, '', '/');
-  }
-
+  if (isCallback && loading)  return <LoadingScreen />;
+  if (isCallback && !loading) window.history.replaceState(null, '', '/');
   if (loading) return <LoadingScreen />;
 
   const urlParams = new URLSearchParams(window.location.search);
   const authError = urlParams.get('error');
-
   if (!user) return <LoginPage error={authError} />;
 
   return (
     <div className="relative z-10 flex flex-col min-h-screen">
-      <Topbar />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto bg-bg">
+      <Topbar onMenuClick={() => setSidebarOpen(true)} />
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main style={{ flex: 1, overflowY: 'auto', background: '#080a0f' }}>
           <Suspense fallback={
             <div className="flex items-center justify-center h-40 text-muted text-xs animate-pulse">Loading…</div>
           }>
