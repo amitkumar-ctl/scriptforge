@@ -1,14 +1,15 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const path = require('path');
 
 const deps = require('./package.json').dependencies;
 
-const SHELL_URL    = process.env.SHELL_URL         || 'http://localhost:4001';
-const PLATFORM_URL = process.env.MFE_PLATFORM_URL  || 'http://localhost:4002';
-const CONFIG_URL   = process.env.MFE_CONFIG_URL    || 'http://localhost:4003';
-const OUTPUT_URL   = process.env.MFE_OUTPUT_URL    || 'http://localhost:4004';
-const HISTORY_URL  = process.env.MFE_HISTORY_URL   || 'http://localhost:4005';
+const SHELL_URL = process.env.SHELL_URL || 'http://localhost:4001';
+const PLATFORM_URL = process.env.MFE_PLATFORM_URL || 'http://localhost:4002';
+const CONFIG_URL = process.env.MFE_CONFIG_URL || 'http://localhost:4003';
+const OUTPUT_URL = process.env.MFE_OUTPUT_URL || 'http://localhost:4004';
+const HISTORY_URL = process.env.MFE_HISTORY_URL || 'http://localhost:4005';
 
 module.exports = {
   entry: './src/index.jsx',
@@ -47,20 +48,25 @@ module.exports = {
       name: 'shell',
       remotes: {
         mfePlatform: `mfePlatform@${PLATFORM_URL}/remoteEntry.js`,
-        mfeConfig:   `mfeConfig@${CONFIG_URL}/remoteEntry.js`,
-        mfeOutput:   `mfeOutput@${OUTPUT_URL}/remoteEntry.js`,
-        mfeHistory:  `mfeHistory@${HISTORY_URL}/remoteEntry.js`,
+        mfeConfig: `mfeConfig@${CONFIG_URL}/remoteEntry.js`,
+        mfeOutput: `mfeOutput@${OUTPUT_URL}/remoteEntry.js`,
+        mfeHistory: `mfeHistory@${HISTORY_URL}/remoteEntry.js`,
       },
       shared: {
-        react:              { singleton: true, requiredVersion: deps.react },
-        'react-dom':        { singleton: true, requiredVersion: deps['react-dom'] },
-        'react-redux':      { singleton: true, requiredVersion: deps['react-redux'] },
+        react: { singleton: true, requiredVersion: deps.react },
+        'react-dom': { singleton: true, requiredVersion: deps['react-dom'] },
+        'react-redux': { singleton: true, requiredVersion: deps['react-redux'] },
         '@reduxjs/toolkit': { singleton: true, requiredVersion: deps['@reduxjs/toolkit'] },
       },
     }),
     new HtmlWebpackPlugin({
       template: './public/index.html',
-      title: 'ScriptForge – AI Script Generator',
+      title: 'ScriptForge - AI Script Generator',
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: 'public/_redirects', to: '_redirects' },
+      ],
     }),
   ],
   devServer: {
