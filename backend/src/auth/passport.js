@@ -1,10 +1,9 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
-const FacebookStrategy = require('passport-facebook').Strategy;
 const { findOrCreateUser } = require('./userService');
 
-const BASE_URL = process.env.CLIENT_URL ? `http://localhost:${process.env.PORT || 4000}` : 'http://localhost:4000';
+const BASE_URL = 'https://scriptforge-backend-production.up.railway.app' || 'http://localhost:4000';
 
 // ─── Google ───────────────────────────────────────────────────────────
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
