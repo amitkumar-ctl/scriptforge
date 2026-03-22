@@ -9,7 +9,7 @@ const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:4004';
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    publicPath: `${PUBLIC_URL}`,
+    publicPath: `${PUBLIC_URL}/`,
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
     clean: true,
