@@ -8,12 +8,12 @@ const PLATFORM_URL = process.env.MFE_PLATFORM_URL || 'http://localhost:4002';
 const CONFIG_URL = process.env.MFE_CONFIG_URL || 'http://localhost:4003';
 const OUTPUT_URL = process.env.MFE_OUTPUT_URL || 'http://localhost:4004';
 const HISTORY_URL = process.env.MFE_HISTORY_URL || 'http://localhost:4005';
-const PUBLIC_URL = process.env.PUBLIC_URL || 'http://localhost:4001';
+const REACT_APP_API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4001';
 
 module.exports = {
   entry: './src/index.jsx',
   output: {
-    publicPath: `${PUBLIC_URL}`,
+    publicPath: `${REACT_APP_API_URL}`,
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].js',
     clean: true,
