@@ -215,7 +215,6 @@ export default function OutputViewer({ platform }) {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 12, color: '#666e85' }}>
           <span style={{ fontSize: 40, opacity: 0.3 }}>✦</span>
           <p style={{ fontSize: 12, fontFamily: '"DM Mono", monospace' }}>Configure your script above and hit Generate</p>
-          <p style={{ fontSize: 10, fontFamily: '"DM Mono", monospace', opacity: 0.6 }}>Powered by Claude AI via Node.js backend</p>
         </div>
       ) : (
         <div style={{ padding: 24 }}>

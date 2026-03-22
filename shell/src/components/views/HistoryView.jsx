@@ -51,7 +51,6 @@ export default function HistoryView() {
 
       <div className="flex items-center gap-2 px-8 mb-4">
         <h2 className="font-syne font-bold text-sm">Generated Scripts</h2>
-        <span className="text-[9px] tracking-widest uppercase px-2 py-0.5 rounded border border-white/7 bg-surface2 text-muted">MFE:history</span>
       </div>
 
       <Suspense fallback={

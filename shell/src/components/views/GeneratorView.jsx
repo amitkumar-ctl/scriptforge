@@ -57,7 +57,6 @@ export default function GeneratorView() {
 
       <div className="flex items-center gap-2 px-8 mb-4">
         <h2 className="font-syne font-bold text-sm">Configure Script</h2>
-        <span className="text-[9px] tracking-widest uppercase px-2 py-0.5 rounded border border-white/7 bg-surface2 text-muted">MFE:config</span>
       </div>
 
       <Suspense fallback={<MFEFallback label="Script Config" />}>
@@ -78,7 +77,6 @@ export default function GeneratorView() {
 
       <div className="flex items-center gap-2 px-8 mb-4">
         <h2 className="font-syne font-bold text-sm">Script Output</h2>
-        <span className="text-[9px] tracking-widest uppercase px-2 py-0.5 rounded border border-white/7 bg-surface2 text-muted">MFE:output</span>
       </div>
 
       <Suspense fallback={<MFEFallback label="Output Viewer" />}>
