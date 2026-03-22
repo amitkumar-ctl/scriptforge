@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import config from '../auth/config';
+import config from '../../config';
 const API_BASE = config.API_URL ||'http://localhost:4000';
 
 
