@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://scriptforge-24h.pages.dev/sitemap.xml

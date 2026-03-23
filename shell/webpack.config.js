@@ -66,6 +66,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'public/_redirects', to: '_redirects' },
+        { from: 'public/robots.txt', to: 'robots.txt' },
       ],
     }),
   ],

@@ -11,8 +11,6 @@ const requireAuth = require('../middleware/requireAuth');
 const router     = express.Router();
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:4001';
 
-console.log('CLIENT_URL is:', CLIENT_URL);
-
 
 // ─── Shared OAuth success handler ─────────────────────────────────────
 async function handleOAuthSuccess(req, res, next) {
