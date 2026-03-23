@@ -35,7 +35,7 @@ export default function PlatformSelector({ selected, onSelect }) {
               style={{
                 borderColor: isSelected ? p.color : 'rgba(255,255,255,0.07)',
                 background: isSelected ? `rgba(${p.rgb}, 0.08)` : '#0e1118',
-                color: isSelected ? '#eef0f6' : '#666e85',
+                color: isSelected ? '#eef0f6' : '#a8b0c0',
               }}
               onMouseEnter={(e) => {
                 if (!isSelected) {
@@ -48,7 +48,7 @@ export default function PlatformSelector({ selected, onSelect }) {
                 if (!isSelected) {
                   e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)';
                   e.currentTarget.style.background = '#0e1118';
-                  e.currentTarget.style.color = '#666e85';
+                  e.currentTarget.style.color = '#a8b0c0';
                 }
               }}
             >

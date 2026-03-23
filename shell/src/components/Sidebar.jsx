@@ -27,7 +27,7 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
   return (
     <>
       <div style={{ marginBottom: 28 }}>
-        <p style={{ padding: '0 16px', marginBottom: 8, fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666e85', fontFamily: '"DM Mono", monospace' }}>
+        <p style={{ padding: '0 16px', marginBottom: 8, fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#a8b0c0', fontFamily: '"DM Mono", monospace' }}>
           Navigation
         </p>
         {navItems(historyCount).map((item) => (
@@ -40,7 +40,7 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
               background: activeView === item.id ? 'rgba(99,220,163,0.05)' : 'transparent',
               border: 'none',
               borderLeft: `2px solid ${activeView === item.id ? '#63dca3' : 'transparent'}`,
-              color: activeView === item.id ? '#eef0f6' : '#666e85',
+              color: activeView === item.id ? '#eef0f6' : '#a8b0c0',
               textAlign: 'left', fontFamily: '"DM Mono", monospace',
               transition: 'all 0.2s',
             }}
@@ -52,7 +52,7 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
 
       {history.length > 0 && (
         <div>
-          <p style={{ padding: '0 16px', marginBottom: 8, fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666e85', fontFamily: '"DM Mono", monospace' }}>
+          <p style={{ padding: '0 16px', marginBottom: 8, fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#a8b0c0', fontFamily: '"DM Mono", monospace' }}>
             Recent
           </p>
           {history.slice(0, 4).map((item) => {
@@ -63,7 +63,7 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
                 onClick={() => onRestore(item)}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 16px', fontSize: 12, color: '#666e85',
+                  padding: '8px 16px', fontSize: 12, color: '#a8b0c0',
                   background: 'none', border: 'none', cursor: 'pointer',
                   textAlign: 'left', fontFamily: '"DM Mono", monospace', transition: 'all 0.2s',
                 }}

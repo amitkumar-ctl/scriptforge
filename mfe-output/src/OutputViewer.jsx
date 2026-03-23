@@ -65,7 +65,7 @@ function ScriptRenderer({ text }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {sections.map((section, i) => {
-        const style = section.label ? (SECTION_STYLES[section.label] || { color: '#666e85', emoji: '•', label: section.label }) : null;
+        const style = section.label ? (SECTION_STYLES[section.label] || { color: '#a8b0c0', emoji: '•', label: section.label }) : null;
         return (
           <div
             key={i}
@@ -133,7 +133,7 @@ function StatCell({ value, label }) {
   return (
     <div style={{ background: '#141720', padding: '12px 20px', textAlign: 'center' }}>
       <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, color: '#63dca3' }}>{value}</div>
-      <div style={{ fontSize: 9, color: '#666e85', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 2 }}>{label}</div>
+      <div style={{ fontSize: 9, color: '#a8b0c0', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 2 }}>{label}</div>
     </div>
   );
 }
@@ -189,10 +189,10 @@ export default function OutputViewer({ platform }) {
         </div>
         {result && (
           <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={handleCopy} style={{ padding: '4px 10px', fontSize: 11, fontFamily: '"DM Mono", monospace', cursor: 'pointer', borderRadius: 5, border: `1px solid ${copied ? '#63dca3' : 'rgba(255,255,255,0.07)'}`, background: copied ? 'rgba(99,220,163,0.1)' : 'rgba(255,255,255,0.04)', color: copied ? '#63dca3' : '#666e85' }}>
+            <button onClick={handleCopy} style={{ padding: '4px 10px', fontSize: 11, fontFamily: '"DM Mono", monospace', cursor: 'pointer', borderRadius: 5, border: `1px solid ${copied ? '#63dca3' : 'rgba(255,255,255,0.07)'}`, background: copied ? 'rgba(99,220,163,0.1)' : 'rgba(255,255,255,0.04)', color: copied ? '#63dca3' : '#a8b0c0' }}>
               {copied ? '✓ Copied' : '⎘ Copy'}
             </button>
-            <button onClick={handleExport} style={{ padding: '4px 10px', fontSize: 11, fontFamily: '"DM Mono", monospace', cursor: 'pointer', borderRadius: 5, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.04)', color: '#666e85' }}>
+            <button onClick={handleExport} style={{ padding: '4px 10px', fontSize: 11, fontFamily: '"DM Mono", monospace', cursor: 'pointer', borderRadius: 5, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.04)', color: '#a8b0c0' }}>
               ↓ Export
             </button>
           </div>
@@ -203,7 +203,7 @@ export default function OutputViewer({ platform }) {
       {result && (
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
           {TABS.map(tab => (
-            <button key={tab} onClick={() => dispatch(setActiveTab(tab))} style={{ padding: '10px 18px', fontSize: 11, fontFamily: '"DM Mono", monospace', cursor: 'pointer', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeTab === tab ? '#63dca3' : 'transparent'}`, color: activeTab === tab ? '#63dca3' : '#666e85' }}>
+            <button key={tab} onClick={() => dispatch(setActiveTab(tab))} style={{ padding: '10px 18px', fontSize: 11, fontFamily: '"DM Mono", monospace', cursor: 'pointer', background: 'transparent', border: 'none', borderBottom: `2px solid ${activeTab === tab ? '#63dca3' : 'transparent'}`, color: activeTab === tab ? '#63dca3' : '#a8b0c0' }}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
             </button>
           ))}
@@ -212,7 +212,7 @@ export default function OutputViewer({ platform }) {
 
       {/* Body */}
       {loading ? <SkeletonLoader /> : !result ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 12, color: '#666e85' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 280, gap: 12, color: '#a8b0c0' }}>
           <span style={{ fontSize: 40, opacity: 0.3 }}>✦</span>
           <p style={{ fontSize: 12, fontFamily: '"DM Mono", monospace' }}>Configure your script above and hit Generate</p>
         </div>

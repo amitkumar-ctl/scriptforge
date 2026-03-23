@@ -13,7 +13,7 @@ function DevPreview() {
 
   return (
     <div style={{ background: '#080a0f', minHeight: '100vh', paddingTop: 24 }}>
-      <p style={{ color: '#666e85', fontSize: 11, marginBottom: 16, paddingLeft: 32 }}>
+      <p style={{ color: '#a8b0c0', fontSize: 11, marginBottom: 16, paddingLeft: 32 }}>
         [DEV] mfe-config standalone preview
       </p>
       <ScriptConfig
