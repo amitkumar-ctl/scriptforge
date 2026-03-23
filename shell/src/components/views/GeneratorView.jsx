@@ -6,7 +6,7 @@ import {
   selectPlatform, selectConfig, selectStatus, selectError,
 } from '../../store/slices/scriptSlice';
 import { showNotification } from '../../store/slices/uiSlice';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet';
 
 const PlatformSelectorMFE = lazy(() => import('mfePlatform/PlatformSelector'));
 const ScriptConfigMFE = lazy(() => import('mfeConfig/ScriptConfig'));
