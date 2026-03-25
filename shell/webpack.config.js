@@ -67,6 +67,7 @@ module.exports = {
       patterns: [
         { from: 'public/_redirects', to: '_redirects' },
         { from: 'public/robots.txt', to: 'robots.txt' },
+        { from: 'public/favicon.ico', to: 'favicon.ico' },
       ],
     }),
   ],
