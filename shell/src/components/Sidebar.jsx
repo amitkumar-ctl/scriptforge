@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setActiveView, selectActiveView } from '../store/slices/uiSlice';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { setActiveView, selectActiveView, setActiveHistoryId } from '../store/slices/uiSlice';
 import { selectHistory, selectHistoryCount, fetchHistory, clearHistory } from '../store/slices/historySlice';
-import { restoreFromHistory } from '../store/slices/scriptSlice';
+import { restoreFromHistory, clearResult, setPlatform, setConfigField } from '../store/slices/scriptSlice';
 import { useAuth } from '../auth/AuthContext';
 import { PLATFORMS } from '../utils/constants';
+
+const VIEW_TO_PATH = {
+  generator: '/',
+  history: '/history',
+  templates: '/templates',
+};
+
+const PATH_TO_VIEW = {
+  '/': 'generator',
+  '/history': 'history',
+  '/templates': 'templates',
+};
 
 const navItems = (count) => [
   { id: 'generator', icon: '⊞', label: 'Generator' },
   { id: 'history', icon: '◷', label: `History (${count})` },
   { id: 'templates', icon: '⊟', label: 'Templates' },
 ];
-
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -23,7 +35,10 @@ function useIsDesktop() {
   return isDesktop;
 }
 
-function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
+function NavContent({ activeView, historyCount, history, activeHistoryId, onNav, onRestore }) {
+  // temporarily add this in Sidebar component
+console.log('activeHistoryId from store:', activeHistoryId);
+console.log('sessionStorage value:', sessionStorage.getItem('sf_active_history_id'));
   return (
     <>
       <div style={{ marginBottom: 28 }}>
@@ -33,14 +48,14 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
         {navItems(historyCount).map((item) => (
           <button
             key={item.id}
-            onClick={() => onNav(item.id)}
+            onClick={() => onNav(item.id)}  /* ← was onRestore, must be onNav */
             style={{
               width: '100%', display: 'flex', alignItems: 'center', gap: 10,
               padding: '9px 16px', fontSize: 12, cursor: 'pointer',
-              background: activeView === item.id ? 'rgba(99,220,163,0.05)' : 'transparent',
               border: 'none',
-              borderLeft: `2px solid ${activeView === item.id ? '#63dca3' : 'transparent'}`,
-              color: activeView === item.id ? '#eef0f6' : '#a8b0c0',
+              borderLeft: `2px solid ${activeView === item.id && !activeHistoryId ? '#63dca3' : 'transparent'}`,
+              color: activeView === item.id && !activeHistoryId ? '#eef0f6' : '#a8b0c0',
+              background: activeView === item.id && !activeHistoryId ? 'rgba(99,220,163,0.05)' : 'transparent',
               textAlign: 'left', fontFamily: '"DM Mono", monospace',
               transition: 'all 0.2s',
             }}
@@ -57,14 +72,19 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
           </p>
           {history.slice(0, 4).map((item) => {
             const platform = PLATFORMS.find((p) => p.id === item.platform);
+            const isActive = activeHistoryId === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => onRestore(item)}
                 style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 16px', fontSize: 12, color: '#a8b0c0',
-                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '8px 16px', fontSize: 12,
+                  color: isActive ? '#eef0f6' : '#a8b0c0',
+                  background: isActive ? 'rgba(99,220,163,0.05)' : 'none',
+                  border: 'none',
+                  borderLeft: `2px solid ${isActive ? '#63dca3' : 'transparent'}`,
+                  cursor: 'pointer',
                   textAlign: 'left', fontFamily: '"DM Mono", monospace', transition: 'all 0.2s',
                 }}
               >
@@ -83,11 +103,18 @@ function NavContent({ activeView, historyCount, history, onNav, onRestore }) {
 
 export default function Sidebar({ open, onClose }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { authFetch, user } = useAuth();
-  const activeView = useSelector(selectActiveView);
+
+  // ← all useSelectors unconditionally at top level
+  const activeViewFromRedux = useSelector(selectActiveView);
+  const activeHistoryId = useSelector((s) => s.ui.activeHistoryId);
   const historyCount = useSelector(selectHistoryCount);
   const history = useSelector(selectHistory);
   const isDesktop = useIsDesktop();
+
+  const activeView = PATH_TO_VIEW[location.pathname] ?? activeViewFromRedux;
 
   useEffect(() => {
     if (user && authFetch) dispatch(fetchHistory({ authFetch }));
@@ -95,18 +122,34 @@ export default function Sidebar({ open, onClose }) {
   }, [user]);
 
   const handleNav = (id) => {
+    if (id === 'generator' && activeHistoryId) {
+    dispatch(clearResult());
+    dispatch(setPlatform('youtube')); // reset to default platform
+    dispatch(setConfigField({ key: 'topic',    value: '' }));
+    dispatch(setConfigField({ key: 'audience', value: '' }));
+    dispatch(setConfigField({ key: 'duration', value: '5 min' }));
+    dispatch(setConfigField({ key: 'tone',     value: 'Energetic' }));
+    dispatch(setConfigField({ key: 'hook',     value: 'Bold Claim' }));
+    dispatch(setConfigField({ key: 'language', value: 'English' }));
+    dispatch(setConfigField({ key: 'cta',      value: 'Subscribe' }));
+    dispatch(setConfigField({ key: 'notes',    value: '' }));
+  }
     dispatch(setActiveView(id));
+    dispatch(setActiveHistoryId(null));
+    navigate(VIEW_TO_PATH[id] ?? '/');
     if (!isDesktop) onClose();
   };
 
   const handleRestore = (item) => {
     dispatch(restoreFromHistory(item));
     dispatch(setActiveView('generator'));
+    dispatch(setActiveHistoryId(item.id));
+    navigate('/');
     if (!isDesktop) onClose();
   };
 
   const sharedProps = {
-    activeView, historyCount, history,
+    activeView, historyCount, history, activeHistoryId,
     onNav: handleNav,
     onRestore: handleRestore,
   };
@@ -132,7 +175,6 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         style={{
@@ -143,8 +185,6 @@ export default function Sidebar({ open, onClose }) {
           transition: 'opacity 0.3s',
         }}
       />
-
-      {/* Drawer */}
       <aside style={{
         ...asideStyle,
         position: 'fixed', top: 0, left: 0,
@@ -152,10 +192,9 @@ export default function Sidebar({ open, onClose }) {
         transform: open ? 'translateX(0)' : 'translateX(-100%)',
         transition: 'transform 0.3s ease-in-out',
       }}>
-        {/* Mobile header — logo + close button */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 16px 16px 10px', marginBottom: 20, marginTop : 40,
+          padding: '16px 16px 16px 10px', marginBottom: 20, marginTop: 40,
           borderBottom: '1px solid rgba(255,255,255,0.07)',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18 }}>
@@ -169,19 +208,9 @@ export default function Sidebar({ open, onClose }) {
           </div>
           <button
             onClick={onClose}
-            style={{
-              background: 'none',
-              // border: '1px solid rgba(255,255,255,0.15)',
-              // borderRadius: 6,
-              color: '#eef0f6',
-              cursor: 'pointer',
-              fontSize: 14,
-              padding: '5px',
-              lineHeight: 1,
-            }}
+            style={{ background: 'none', color: '#eef0f6', cursor: 'pointer', fontSize: 14, padding: '5px', lineHeight: 1 }}
           >✕</button>
         </div>
-
         <NavContent {...sharedProps} />
       </aside>
     </>

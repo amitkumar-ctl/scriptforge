@@ -1,6 +1,8 @@
-import React, { Suspense, lazy ,useState} from 'react';
+import React, { Suspense, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import store from './store';
 import { AuthProvider, useAuth } from './auth/AuthContext';
 import './styles/global.css';
@@ -10,12 +12,9 @@ import Sidebar      from './components/Sidebar';
 import Notification from './components/Notification';
 import LoginPage    from './components/auth/LoginPage';
 
-import GeneratorView from './components/views/GeneratorView';
-import HistoryView   from './components/views/HistoryView';
-import TemplatesView from './components/views/TemplatesView';
-
-import { useSelector } from 'react-redux';
-import { selectActiveView } from './store/slices/uiSlice';
+import GeneratorView  from './components/views/GeneratorView';
+import HistoryView    from './components/views/HistoryView';
+import TemplatesView  from './components/views/TemplatesView';
 
 function LoadingScreen() {
   return (
@@ -28,17 +27,19 @@ function LoadingScreen() {
   );
 }
 
-function Main() {
+function AppShell() {
   const { user, loading } = useAuth();
-  const view = useSelector(selectActiveView);
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const isCallback = window.location.pathname === '/auth/callback';
-  if (isCallback && loading)  return <LoadingScreen />;
-  if (isCallback && !loading) window.history.replaceState(null, '', '/');
+  // Handle OAuth callback — tokens arrive in the hash at /auth/callback
+  const isCallback = location.pathname === '/auth/callback';
+  if (isCallback && loading) return <LoadingScreen />;
+  if (isCallback && !loading) return <Navigate to="/" replace />;
+
   if (loading) return <LoadingScreen />;
 
-  const urlParams = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(location.search);
   const authError = urlParams.get('error');
   if (!user) return <LoginPage error={authError} />;
 
@@ -51,9 +52,12 @@ function Main() {
           <Suspense fallback={
             <div className="flex items-center justify-center h-40 text-muted text-xs animate-pulse">Loading…</div>
           }>
-            {view === 'generator'  && <GeneratorView />}
-            {view === 'history'    && <HistoryView />}
-            {view === 'templates'  && <TemplatesView />}
+            <Routes>
+              <Route path="/"          element={<GeneratorView />} />
+              <Route path="/history"   element={<HistoryView />} />
+              <Route path="/templates" element={<TemplatesView />} />
+              <Route path="*"          element={<Navigate to="/" replace />} />
+            </Routes>
           </Suspense>
         </main>
       </div>
@@ -66,7 +70,9 @@ function App() {
   return (
     <Provider store={store}>
       <AuthProvider>
-        <Main />
+        <BrowserRouter>
+          <AppShell />
+        </BrowserRouter>
       </AuthProvider>
     </Provider>
   );

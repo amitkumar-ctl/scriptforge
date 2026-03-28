@@ -1,5 +1,6 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'; 
 import { useAuth } from '../../auth/AuthContext';
 import { restoreFromHistory } from '../../store/slices/scriptSlice';
 import { setActiveView } from '../../store/slices/uiSlice';
@@ -10,6 +11,7 @@ const HistoryPanelMFE = lazy(() => import('mfeHistory/HistoryPanel'));
 export default function HistoryView() {
   const dispatch = useDispatch();
   const { authFetch } = useAuth();
+  const navigate = useNavigate();
   const status = useSelector(selectHistoryStatus);
 
   // Load from API when view mounts
@@ -22,6 +24,7 @@ export default function HistoryView() {
   const handleRestore = (item) => {
     dispatch(restoreFromHistory(item));
     dispatch(setActiveView('generator'));
+    navigate('/');
   };
 
   const handleDelete = (id) => {

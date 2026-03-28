@@ -5,7 +5,7 @@ const path = require('path');
 
 const deps = require('./package.json').dependencies;
 
-const SHELL_URL = process.env.SHELL_URL || 'http://localhost:4001';
+const SHELL_URL = process.env.MFE_SHELL_URL || 'http://localhost:4001';
 const PLATFORM_URL = process.env.MFE_PLATFORM_URL || 'http://localhost:4002';
 const CONFIG_URL = process.env.MFE_CONFIG_URL || 'http://localhost:4003';
 const OUTPUT_URL = process.env.MFE_OUTPUT_URL || 'http://localhost:4004';
