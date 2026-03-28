@@ -1,13 +1,16 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { setPlatform, setConfigField } from '../../store/slices/scriptSlice';
+import { setPlatform, setConfigField,clearResult } from '../../store/slices/scriptSlice';
 import { setActiveView } from '../../store/slices/uiSlice';
+import { useNavigate } from 'react-router-dom';
 import { TEMPLATES, PLATFORMS, DURATIONS } from '../../utils/constants';
 
 export default function TemplatesView() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const applyTemplate = (tpl) => {
+     dispatch(clearResult());
     dispatch(setPlatform(tpl.platform));
     dispatch(setConfigField({ key: 'topic', value: tpl.topic }));
     dispatch(setConfigField({ key: 'tone',  value: tpl.tone }));
@@ -15,6 +18,7 @@ export default function TemplatesView() {
     const durations = DURATIONS[tpl.platform] || DURATIONS.custom;
     dispatch(setConfigField({ key: 'duration', value: durations[1] || durations[0] }));
     dispatch(setActiveView('generator'));
+    navigate('/');
   };
 
   return (
