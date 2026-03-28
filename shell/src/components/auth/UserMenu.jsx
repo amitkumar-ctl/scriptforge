@@ -61,7 +61,7 @@ export default function UserMenu() {
           {/* Menu items */}
           <div className="py-1">
             <button
-              onClick={() => { setOpen(false); logout(); }}
+              onClick={() => { setOpen(false); logout(); window.location.href = '/';}}
               className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-mono
                          text-muted hover:text-danger hover:bg-danger/5 transition-all duration-150 cursor-pointer text-left"
             >
