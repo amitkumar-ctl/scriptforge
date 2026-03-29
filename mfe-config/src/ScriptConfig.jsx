@@ -1,8 +1,30 @@
 import React from 'react';
 import './styles.css';
 
-const TONES = ['Energetic', 'Professional', 'Funny', 'Emotional', 'Educational', 'ASMR', 'Hype', 'Storytelling'];
-const HOOK_STYLES = ['Bold Claim', 'Shocking Stat', 'Relatable Problem', 'Question Hook', 'Controversy', 'Story Drop'];
+const TONES = [
+  'Energetic',
+  'Funny',
+  'Educational',
+  'Emotional',
+  'Inspirational',
+  'Conversational',
+  'Hype',
+  'Storytelling',
+  'Professional',
+  'Controversial',
+];
+
+const HOOK_STYLES = [
+  'Bold Claim',
+  'Story Drop',
+  'Curiosity Gap',
+  'Question',
+  'Shocking Stat',
+  'Relatable Problem',
+  'Controversy',
+  'Number',
+  'Statistic',
+];
 
 const DURATIONS = {
   youtube:   ['3 min', '5 min', '8 min', '12 min', '20 min'],

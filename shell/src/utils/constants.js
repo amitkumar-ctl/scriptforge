@@ -9,13 +9,28 @@ export const PLATFORMS = [
 ];
 
 export const TONES = [
-  'Energetic', 'Professional', 'Funny', 'Emotional',
-  'Educational', 'ASMR', 'Hype', 'Storytelling',
+  'Energetic',
+  'Funny',
+  'Hype',
+  'Emotional',
+  'Educational',
+  'Inspirational',
+  'Conversational',
+  'Professional',
+  'Controversial',
 ];
 
 export const HOOK_STYLES = [
-  'Bold Claim', 'Shocking Stat', 'Relatable Problem',
-  'Question Hook', 'Controversy', 'Story Drop',
+  'Bold Claim',
+  'Story Drop',
+  'Curiosity Gap',
+  'Question',
+  'Shocking Stat',
+  'Relatable Problem',
+  'Controversy',
+  'Controversy',
+  'Number',
+  'Statistic',
 ];
 
 export const DURATIONS = {
