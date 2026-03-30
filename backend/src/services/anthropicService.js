@@ -233,6 +233,44 @@ async function generateScript({ platform, config }) {
   }
 }
 
+function extractAndMergeMultipleJsonBlocks(rawText) {
+  // Find all {...} blocks in the response
+  const blocks = [];
+  let depth = 0;
+  let start = -1;
+
+  for (let i = 0; i < rawText.length; i++) {
+    if (rawText[i] === '{') {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (rawText[i] === '}') {
+      depth--;
+      if (depth === 0 && start !== -1) {
+        blocks.push(rawText.slice(start, i + 1));
+        start = -1;
+      }
+    }
+  }
+
+  if (blocks.length === 0) throw new Error('No JSON blocks found');
+
+  // If only one block, parse normally
+  if (blocks.length === 1) return JSON.parse(blocks[0]);
+
+  // Merge all blocks into one object
+  const merged = {};
+  for (const block of blocks) {
+    try {
+      const parsed = JSON.parse(block);
+      Object.assign(merged, parsed);
+    } catch {
+      // skip malformed blocks
+    }
+  }
+
+  return merged;
+}
+
 function buildDirectorsPrompt({ platform, config, script }) {
   // Split script into sections to guide per-section directions
   const sections = script.match(/\[([A-Z ]+)\][^\[]+/g) || [];
@@ -258,10 +296,12 @@ FULL SCRIPT:
 ${script.slice(0, 2000)}
 
 RULES:
-1. Reply with RAW JSON only. No markdown. No explanation.
-2. Start with { end with }. Nothing else.
-3. Keep every string value SHORT — max 2 sentences.
-4. Do not nest JSON inside string values.
+1. Reply with a SINGLE RAW JSON object only.
+2. NO markdown fences. NO \`\`\`json. NO \`\`\`.
+3. ONE opening { and ONE closing }. Nothing outside them.
+4. Keep every string value SHORT — max 2 sentences.
+5. Do not nest JSON inside string values.
+6. Do not split the response into multiple JSON blocks under any circumstances.
 
 Return exactly this shape:
 {
@@ -306,12 +346,14 @@ Return exactly this shape:
 
 async function generateDirectorsCut({ platform, config, script }) {
   const anthropic = getClient();
-  const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+  const model     = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+
+  const trimmedScript = script.slice(0, 2000);
 
   const message = await anthropic.messages.create({
     model,
     max_tokens: 2000,
-    messages: [{ role: 'user', content: buildDirectorsPrompt({ platform, config, script }) }],
+    messages: [{ role: 'user', content: buildDirectorsPrompt({ platform, config, script: trimmedScript }) }],
   });
 
   const rawText = message.content
@@ -320,32 +362,25 @@ async function generateDirectorsCut({ platform, config, script }) {
     .join('');
 
   try {
-    let parsed = extractAndParse(rawText);
+    // Try merging multiple blocks first
+    const parsed = extractAndMergeMultipleJsonBlocks(rawText);
 
-    // If the entire response ended up inside performance.character as a string,
-    // unwrap it and parse again
-    if (
-      parsed.performance?.character &&
-      typeof parsed.performance.character === 'string' &&
-      parsed.performance.character.trim().startsWith('{')
-    ) {
-      try {
-        const inner = JSON.parse(parsed.performance.character);
-        if (inner.performance && inner.scenes) parsed = inner;
-      } catch {
-        // not double encoded, leave as is
-      }
+    // Fix nested keyMoments if they ended up outside performance
+    if (parsed.keyMoments && !parsed.performance?.keyMoments) {
+      parsed.performance = parsed.performance || {};
+      parsed.performance.keyMoments = parsed.keyMoments;
+      delete parsed.keyMoments;
     }
 
     return parsed;
   } catch (err) {
     console.error('[Anthropic] Directors cut parse failed:', err.message);
     return {
-      performance: { character: rawText, energyArc: '', keyMoments: [] },
-      scenes: [],
-      music: { overallMood: '', bpm: '', cues: [] },
-      editing: { cutStyle: '', transitions: '', textOverlays: '', pacing: '' },
-      visual: { colorGrade: '', captionStyle: '', animationStyle: '', thumbnail: '' },
+      performance: { character: '', energyArc: '', keyMoments: [] },
+      scenes:      [],
+      music:       { overallMood: '', bpm: '', cues: [] },
+      editing:     { cutStyle: '', transitions: '', textOverlays: '', pacing: '' },
+      visual:      { colorGrade: '', captionStyle: '', animationStyle: '', thumbnail: '' },
     };
   }
 }
