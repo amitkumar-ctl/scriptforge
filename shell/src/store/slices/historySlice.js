@@ -8,7 +8,7 @@ export const fetchHistory = createAsyncThunk(
   'history/fetch',
   async ({ authFetch }, { rejectWithValue }) => {
     try {
-      const res = await authFetch('/api/script/history?limit=50');
+      const res = await authFetch('/api/script/history');
       if (!res.ok) {
         const err = await res.json();
         return rejectWithValue(err.error || 'Failed to load history');

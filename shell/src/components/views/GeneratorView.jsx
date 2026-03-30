@@ -98,7 +98,7 @@ export default function GeneratorView() {
         </div>
 
         <Suspense fallback={<MFEFallback label="Output Viewer" />}>
-          <OutputViewerMFE platform={platform} />
+          <OutputViewerMFE platform={platform} authFetch={authFetch} config={config} />
         </Suspense>
       </div>
     </>

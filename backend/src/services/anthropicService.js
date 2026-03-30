@@ -233,4 +233,121 @@ async function generateScript({ platform, config }) {
   }
 }
 
-module.exports = { generateScript };
+function buildDirectorsPrompt({ platform, config, script }) {
+  // Split script into sections to guide per-section directions
+  const sections = script.match(/\[([A-Z ]+)\][^\[]+/g) || [];
+  const sectionList = sections.map(s => {
+    const label = (s.match(/\[([A-Z ]+)\]/) || [])[1] || '';
+    const text = s.replace(/\[([A-Z ]+)\]/, '').trim().slice(0, 80);
+    return `- ${label}: "${text}..."`;
+  }).join('\n');
+
+  return `You are a world-class creative director for ${platform.toUpperCase()} content.
+
+Given this script, produce a production guide. Be concise — 1-2 sentences per field.
+
+PLATFORM: ${platform.toUpperCase()}
+TOPIC: ${config.topic}
+TONE: ${config.tone}
+DURATION: ${config.duration}
+
+SCRIPT SECTIONS:
+${sectionList}
+
+FULL SCRIPT:
+${script.slice(0, 2000)}
+
+RULES:
+1. Reply with RAW JSON only. No markdown. No explanation.
+2. Start with { end with }. Nothing else.
+3. Keep every string value SHORT — max 2 sentences.
+4. Do not nest JSON inside string values.
+
+Return exactly this shape:
+{
+  "performance": {
+    "character": "Who the presenter should embody in 1 sentence",
+    "energyArc": "How energy should flow start to finish in 1 sentence",
+    "keyMoments": [
+      { "section": "HOOK", "direction": "1 sentence acting note" },
+      { "section": "MAIN CONTENT", "direction": "1 sentence acting note" },
+      { "section": "CTA", "direction": "1 sentence acting note" }
+    ]
+  },
+  "scenes": [
+    { "section": "HOOK", "acting": "1 sentence", "camera": "1 sentence", "energy": "1 sentence", "bRoll": "1 sentence" },
+    { "section": "MAIN CONTENT", "acting": "1 sentence", "camera": "1 sentence", "energy": "1 sentence", "bRoll": "1 sentence" },
+    { "section": "CTA", "acting": "1 sentence", "camera": "1 sentence", "energy": "1 sentence", "bRoll": "1 sentence" },
+    { "section": "OUTRO", "acting": "1 sentence", "camera": "1 sentence", "energy": "1 sentence", "bRoll": "1 sentence" }
+  ],
+  "music": {
+    "overallMood": "Genre and mood in 1 sentence",
+    "bpm": "e.g. 120-140 BPM",
+    "cues": [
+      { "moment": "HOOK", "direction": "What music does here in 1 sentence" },
+      { "moment": "MAIN CONTENT", "direction": "What music does here in 1 sentence" },
+      { "moment": "CTA", "direction": "What music does here in 1 sentence" }
+    ]
+  },
+  "editing": {
+    "cutStyle": "1 sentence describing cut rhythm",
+    "transitions": "1 sentence on transition style",
+    "textOverlays": "1 sentence on when/how to use text",
+    "pacing": "1 sentence overall pacing note"
+  },
+  "visual": {
+    "colorGrade": "1 sentence color mood",
+    "captionStyle": "1 sentence font/caption style",
+    "animationStyle": "1 sentence animation approach",
+    "thumbnail": "1 specific thumbnail concept"
+  }
+}`;
+}
+
+async function generateDirectorsCut({ platform, config, script }) {
+  const anthropic = getClient();
+  const model = process.env.ANTHROPIC_MODEL || 'claude-haiku-4-5-20251001';
+
+  const message = await anthropic.messages.create({
+    model,
+    max_tokens: 2000,
+    messages: [{ role: 'user', content: buildDirectorsPrompt({ platform, config, script }) }],
+  });
+
+  const rawText = message.content
+    .filter(b => b.type === 'text')
+    .map(b => b.text)
+    .join('');
+
+  try {
+    let parsed = extractAndParse(rawText);
+
+    // If the entire response ended up inside performance.character as a string,
+    // unwrap it and parse again
+    if (
+      parsed.performance?.character &&
+      typeof parsed.performance.character === 'string' &&
+      parsed.performance.character.trim().startsWith('{')
+    ) {
+      try {
+        const inner = JSON.parse(parsed.performance.character);
+        if (inner.performance && inner.scenes) parsed = inner;
+      } catch {
+        // not double encoded, leave as is
+      }
+    }
+
+    return parsed;
+  } catch (err) {
+    console.error('[Anthropic] Directors cut parse failed:', err.message);
+    return {
+      performance: { character: rawText, energyArc: '', keyMoments: [] },
+      scenes: [],
+      music: { overallMood: '', bpm: '', cues: [] },
+      editing: { cutStyle: '', transitions: '', textOverlays: '', pacing: '' },
+      visual: { colorGrade: '', captionStyle: '', animationStyle: '', thumbnail: '' },
+    };
+  }
+}
+
+module.exports = { generateScript, generateDirectorsCut };
