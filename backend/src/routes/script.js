@@ -1,9 +1,9 @@
-const express  = require('express');
-const router   = express.Router();
+const express = require('express');
+const router = express.Router();
 const { generateScript } = require('../services/anthropicService');
-const validateScript     = require('../middleware/validateScript');
-const requireAuth        = require('../middleware/requireAuth');
-const Script             = require('../db/models/Script');
+const validateScript = require('../middleware/validateScript');
+const requireAuth = require('../middleware/requireAuth');
+const Script = require('../db/models/Script');
 
 // POST /api/script/generate
 router.post('/generate', requireAuth, validateScript, async (req, res, next) => {
@@ -31,10 +31,27 @@ router.post('/generate', requireAuth, validateScript, async (req, res, next) => 
   } catch (err) { next(err); }
 });
 
+// POST /api/script/directors-cut
+router.post('/directors-cut', requireAuth, async (req, res, next) => {
+  try {
+    const { platform, config, script } = req.body;
+
+    if (!script || !platform) {
+      return res.status(400).json({ error: 'platform and script are required' });
+    }
+
+    const { generateDirectorsCut } = require('../services/anthropicService');
+    const trimmedScript = script.slice(0, 3000);
+    const result = await generateDirectorsCut({ platform, config, script: trimmedScript });
+
+    res.json({ success: true, data: result });
+  } catch (err) { next(err); }
+});
+
 // GET /api/script/history
 router.get('/history', requireAuth, async (req, res, next) => {
   try {
-    const limit  = Math.min(parseInt(req.query.limit) || 20, 100);
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
     const offset = parseInt(req.query.offset) || 0;
     const userId = req.user.id;
 
@@ -49,11 +66,11 @@ router.get('/history', requireAuth, async (req, res, next) => {
 
     res.json({
       items: items.map(s => ({
-        id:        s._id,
-        platform:  s.platform,
-        topic:     s.topic,
-        config:    s.config,
-        result:    s.result,
+        id: s._id,
+        platform: s.platform,
+        topic: s.topic,
+        config: s.config,
+        result: s.result,
         createdAt: s.createdAt,
       })),
       total, limit, offset,

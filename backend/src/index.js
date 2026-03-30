@@ -34,7 +34,7 @@ app.use(cors({
 }));
 
 // ─── Parsers ──────────────────────────────────────────────────────────
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '50kb' }));
 app.use(cookieParser());
 app.use(passport.initialize());
 
