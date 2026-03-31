@@ -24,7 +24,7 @@ export default function HistoryView() {
   const handleRestore = (item) => {
     dispatch(restoreFromHistory(item));
     dispatch(setActiveView('generator'));
-    navigate('/');
+    navigate('/app');
   };
 
   const handleDelete = (id) => {

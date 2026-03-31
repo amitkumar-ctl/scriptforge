@@ -11,6 +11,7 @@ const scriptRoutes = require('./routes/script');
 const authRoutes   = require('./routes/auth');
 const healthRoutes = require('./routes/health');
 const errorHandler = require('./middleware/errorHandler');
+const contactRoutes = require('./routes/contact');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -51,6 +52,7 @@ app.use('/api/script/generate', genLimiter);
 app.use('/api/health', healthRoutes);
 app.use('/api/auth',   authRoutes);
 app.use('/api/script', scriptRoutes);
+app.use('/api/contact', contactRoutes);
 
 // ─── Error handler ────────────────────────────────────────────────────
 app.use(errorHandler);

@@ -18,7 +18,7 @@ export default function TemplatesView() {
     const durations = DURATIONS[tpl.platform] || DURATIONS.custom;
     dispatch(setConfigField({ key: 'duration', value: durations[1] || durations[0] }));
     dispatch(setActiveView('generator'));
-    navigate('/');
+    navigate('/app');
   };
 
   return (
