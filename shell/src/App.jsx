@@ -47,7 +47,7 @@ function AppShell() {
       <Topbar onMenuClick={() => setSidebarOpen(true)} />
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <main style={{ flex: 1, overflowY: 'auto', background: '#080a0f' }}>
+        <main role='main' style={{ flex: 1, overflowY: 'auto', background: '#080a0f' }}>
           <Suspense fallback={
             <div className="flex items-center justify-center h-40 text-muted text-xs animate-pulse">Loading…</div>
           }>

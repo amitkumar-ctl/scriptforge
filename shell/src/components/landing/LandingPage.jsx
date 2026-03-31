@@ -369,7 +369,7 @@ export default function LandingPage() {
               { step: '03', title: 'Generate & use', desc: 'Get a complete, ready-to-record script with hooks, hashtags, and a content brief. In seconds.', icon: '✦', color: '#f0a04b' },
             ].map(s => (
               <div key={s.step} style={{ padding: 32, borderRadius: 20, border: '1px solid rgba(255,255,255,0.07)', background: '#0e1118', textAlign: 'left', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 16, right: 20, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 48, color: 'rgba(255,255,255,0.03)' }}>{s.step}</div>
+                <div style={{ position: 'absolute', top: 16, right: 20, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 48, color: 'rgb(255 255 255 / 34%)' }}>{s.step}</div>
                 <div style={{ fontSize: 28, color: s.color, marginBottom: 16 }}>{s.icon}</div>
                 <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, marginBottom: 12 }}>{s.title}</h3>
                 <p style={{ fontSize: 13, color: '#a8b0c0', lineHeight: 1.7, margin: 0 }}>{s.desc}</p>
