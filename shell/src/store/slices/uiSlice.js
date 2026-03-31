@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const PATH_TO_VIEW = {
-  '/': 'generator',
-  '/history': 'history',
-  '/templates': 'templates',
+  '/app':           'generator',
+  '/app/history':   'history',
+  '/app/templates': 'templates',
 };
 
 function loadPersistedHistoryId() {

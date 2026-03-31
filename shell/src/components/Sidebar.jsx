@@ -8,15 +8,15 @@ import { useAuth } from '../auth/AuthContext';
 import { PLATFORMS } from '../utils/constants';
 
 const VIEW_TO_PATH = {
-  generator: '/',
-  history: '/history',
-  templates: '/templates',
+  generator:  '/app',
+  history:    '/app/history',
+  templates:  '/app/templates',
 };
 
 const PATH_TO_VIEW = {
-  '/': 'generator',
-  '/history': 'history',
-  '/templates': 'templates',
+  '/app':           'generator',
+  '/app/history':   'history',
+  '/app/templates': 'templates',
 };
 
 const navItems = (count) => [

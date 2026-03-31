@@ -10,7 +10,7 @@ import './styles/global.css';
 import Topbar       from './components/Topbar';
 import Sidebar      from './components/Sidebar';
 import Notification from './components/Notification';
-import LoginPage    from './components/auth/LoginPage';
+import LandingPage  from './components/landing/LandingPage';
 
 import GeneratorView  from './components/views/GeneratorView';
 import HistoryView    from './components/views/HistoryView';
@@ -32,16 +32,15 @@ function AppShell() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Handle OAuth callback — tokens arrive in the hash at /auth/callback
   const isCallback = location.pathname === '/auth/callback';
   if (isCallback && loading) return <LoadingScreen />;
-  if (isCallback && !loading) return <Navigate to="/" replace />;
+  if (isCallback && !loading) return <Navigate to="/app" replace />;
 
   if (loading) return <LoadingScreen />;
 
   const urlParams = new URLSearchParams(location.search);
   const authError = urlParams.get('error');
-  if (!user) return <LoginPage error={authError} />;
+  if (!user) return <Navigate to="/" replace />;
 
   return (
     <div className="relative z-10 flex flex-col min-h-screen">
@@ -53,10 +52,10 @@ function AppShell() {
             <div className="flex items-center justify-center h-40 text-muted text-xs animate-pulse">Loading…</div>
           }>
             <Routes>
-              <Route path="/"          element={<GeneratorView />} />
-              <Route path="/history"   element={<HistoryView />} />
-              <Route path="/templates" element={<TemplatesView />} />
-              <Route path="*"          element={<Navigate to="/" replace />} />
+              <Route path=""           element={<GeneratorView />} />
+              <Route path="history"   element={<HistoryView />} />
+              <Route path="templates" element={<TemplatesView />} />
+              <Route path="*"              element={<Navigate to="/app" replace />} />
             </Routes>
           </Suspense>
         </main>
@@ -71,11 +70,26 @@ function App() {
     <Provider store={store}>
       <AuthProvider>
         <BrowserRouter>
-          <AppShell />
+          <Routes>
+            {/* Public landing page */}
+            <Route path="/" element={<LandingPage />} />
+            {/* Auth callback */}
+            <Route path="/auth/callback" element={<AuthCallbackHandler />} />
+            {/* Protected app */}
+            <Route path="/app/*" element={<AppShell />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
         </BrowserRouter>
       </AuthProvider>
     </Provider>
   );
+}
+
+function AuthCallbackHandler() {
+  const { loading,user } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (user) return <Navigate to="/app" replace />;
+  return <Navigate to="/" replace />;
 }
 
 createRoot(document.getElementById('root')).render(<App />);
