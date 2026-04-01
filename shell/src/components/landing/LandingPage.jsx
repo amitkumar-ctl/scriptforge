@@ -3,16 +3,16 @@ import { useAuth } from '../../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config';
 
-const API_BASE = config.API_URL || 'http://localhost:4000';
+const API_BASE = 'http://localhost:4000';
 
 const PLATFORMS = [
-  { id: 'youtube',   label: 'YouTube',     icon: '▶', color: '#ff4545' },
-  { id: 'instagram', label: 'Instagram',   icon: '◈', color: '#e040fb' },
-  { id: 'tiktok',    label: 'TikTok',      icon: '♪', color: '#00f5d4' },
-  { id: 'linkedin',  label: 'LinkedIn',    icon: '⬡', color: '#4fa3e0' },
-  { id: 'podcast',   label: 'Podcast',     icon: '⊚', color: '#f0a04b' },
-  { id: 'twitter',   label: 'X / Twitter', icon: '✕', color: '#5bc8e0' },
-  { id: 'custom',    label: 'Custom',      icon: '⊕', color: '#aaaaaa' },
+  { id: 'youtube', label: 'YouTube', icon: '▶', color: '#ff4545' },
+  { id: 'instagram', label: 'Instagram', icon: '◈', color: '#e040fb' },
+  { id: 'tiktok', label: 'TikTok', icon: '♪', color: '#00f5d4' },
+  { id: 'linkedin', label: 'LinkedIn', icon: '⬡', color: '#4fa3e0' },
+  { id: 'podcast', label: 'Podcast', icon: '⊚', color: '#f0a04b' },
+  { id: 'twitter', label: 'X / Twitter', icon: '✕', color: '#5bc8e0' },
+  { id: 'custom', label: 'Custom', icon: '⊕', color: '#aaaaaa' },
 ];
 
 const DEMO_SCRIPTS = {
@@ -77,7 +77,7 @@ Save this for the next time you film. Your future self will thank you.`,
 // Typewriter hook
 function useTypewriter(text, speed = 18, active = false) {
   const [displayed, setDisplayed] = useState('');
-  const [done, setDone]           = useState(false);
+  const [done, setDone] = useState(false);
   const indexRef = useRef(0);
 
   useEffect(() => {
@@ -98,6 +98,17 @@ function useTypewriter(text, speed = 18, active = false) {
   }, [text, active]);
 
   return { displayed, done };
+}
+
+//monbile hook
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return isMobile;
 }
 
 // Login Modal
@@ -127,19 +138,23 @@ function LoginModal({ onClose }) {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {[
-            { id: 'google', label: 'Continue with Google', icon: (
-              <svg width="18" height="18" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-              </svg>
-            )},
-            { id: 'github', label: 'Continue with GitHub', icon: (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-              </svg>
-            )},
+            {
+              id: 'google', label: 'Continue with Google', icon: (
+                <svg width="18" height="18" viewBox="0 0 48 48">
+                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+                </svg>
+              )
+            },
+            {
+              id: 'github', label: 'Continue with GitHub', icon: (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
+                </svg>
+              )
+            },
           ].map(p => (
             <button
               key={p.id}
@@ -163,8 +178,8 @@ function LoginModal({ onClose }) {
 }
 
 // Contact form
-function ContactForm() {
-  const [form, setForm]     = useState({ name: '', email: '', message: '' });
+function ContactForm({ isMobile }) {
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
 
   const handleSubmit = async () => {
@@ -193,10 +208,10 @@ function ContactForm() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
         {[
-          { key: 'name',  placeholder: 'Your name',         type: 'text' },
-          { key: 'email', placeholder: 'your@email.com',    type: 'email' },
+          { key: 'name', placeholder: 'Your name', type: 'text' },
+          { key: 'email', placeholder: 'your@email.com', type: 'email' },
         ].map(f => (
           <input
             key={f.key}
@@ -229,10 +244,11 @@ function ContactForm() {
 
 export default function LandingPage() {
   const { user } = useAuth();
-  const navigate  = useNavigate();
-  const [showModal,      setShowModal]      = useState(false);
-  const [demoStarted,    setDemoStarted]    = useState(false);
-  const [demoPlatform,   setDemoPlatform]   = useState('youtube');
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const [showModal, setShowModal] = useState(false);
+  const [demoStarted, setDemoStarted] = useState(false);
+  const [demoPlatform, setDemoPlatform] = useState('youtube');
   const [demoGenerating, setDemoGenerating] = useState(false);
 
   const demoScript = DEMO_SCRIPTS[demoPlatform] || DEMO_SCRIPTS.youtube;
@@ -265,36 +281,39 @@ export default function LandingPage() {
       </div>
 
       {/* ── Navbar ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', height: 64, background: 'rgba(8,10,15,0.9)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 8, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#070d0a' }}>✦</div>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 64, background: 'rgba(8,10,15,0.9)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: '#070d0a' }}>✦</div>
           Script<span style={{ color: '#63dca3' }}>Forge</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
-            <a
-              key={item}
-              href={`#${item.toLowerCase()}`}
-              style={{ color: '#a8b0c0', fontSize: 13, textDecoration: 'none', transition: 'color 0.2s' }}
-              onMouseEnter={e => e.target.style.color = '#eef0f6'}
-              onMouseLeave={e => e.target.style.color = '#a8b0c0'}
-            >{item}</a>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        {/* Hide nav links on mobile */}
+        {!isMobile && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+            {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                style={{ color: '#a8b0c0', fontSize: 13, textDecoration: 'none', transition: 'color 0.2s' }}
+                onMouseEnter={e => e.target.style.color = '#eef0f6'}
+                onMouseLeave={e => e.target.style.color = '#a8b0c0'}
+              >{item}</a>
+            ))}
+          </div>
+        )}
+        <div style={{ display: 'flex', gap: 8 }}>
           <button
             onClick={handleGetStarted}
-            style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 13 }}
+            style={{ padding: isMobile ? '7px 12px' : '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 12 }}
           >Sign In</button>
           <button
             onClick={handleGetStarted}
-            style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13 }}
+            style={{ padding: isMobile ? '7px 12px' : '8px 20px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 12 }}
           >Get Started</button>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '100px 40px 80px' }}>
+      <section style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: isMobile ? '60px 20px 40px' : '100px 40px 80px' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 20, border: '1px solid rgba(99,220,163,0.2)', background: 'rgba(99,220,163,0.06)', marginBottom: 32 }}>
           <span style={{ color: '#63dca3', fontSize: 11 }}>✦</span>
           <span style={{ color: '#63dca3', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI-Powered Script Generation</span>
@@ -309,35 +328,34 @@ export default function LandingPage() {
           AI-powered scripts for every platform. YouTube, TikTok, Instagram, LinkedIn and more — generated in seconds, engineered to perform.
         </p>
 
-        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center' }}>
           <button
             onClick={handleGetStarted}
-            style={{ padding: '16px 36px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, boxShadow: '0 8px 32px rgba(99,220,163,0.25)' }}
+            style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, boxShadow: '0 8px 32px rgba(99,220,163,0.25)', width: isMobile ? '100%' : 'auto' }}
           >✦ Start Generating Free</button>
           <a
             href="#demo"
-            style={{ padding: '16px 36px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 14, textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+            style={{ padding: '14px 32px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 13, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: isMobile ? '100%' : 'auto' }}
           >Watch Demo →</a>
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'flex', gap: 48, justifyContent: 'center', marginTop: 64, flexWrap: 'wrap' }}>
-          {[
-            { value: '7',    label: 'Platforms' },
-            { value: '10+',  label: 'Script Styles' },
-            { value: '<30s', label: 'Generation Time' },
-            { value: '100%', label: 'AI-Powered' },
-          ].map(s => (
-            <div key={s.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 32, color: '#63dca3' }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: '#a8b0c0', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
-            </div>
-          ))}
+        <div style={{ display: 'flex', gap: isMobile ? 24 : 48, justifyContent: 'center', marginTop: 48, flexWrap: 'wrap' }}>          {[
+          { value: '7', label: 'Platforms' },
+          { value: '10+', label: 'Script Styles' },
+          { value: '<30s', label: 'Generation Time' },
+          { value: '100%', label: 'AI-Powered' },
+        ].map(s => (
+          <div key={s.label} style={{ textAlign: 'center' }}>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 32, color: '#63dca3' }}>{s.value}</div>
+            <div style={{ fontSize: 11, color: '#a8b0c0', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
+          </div>
+        ))}
         </div>
       </section>
 
       {/* ── Platforms ── */}
-      <section id="features" style={{ position: 'relative', zIndex: 1, padding: '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="features" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Supported Platforms</p>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 48 }}>Every platform. One tool.</h2>
@@ -358,7 +376,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section style={{ position: 'relative', zIndex: 1, padding: '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>How It Works</p>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 64 }}>Three steps to your script.</h2>
@@ -380,7 +398,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Live Demo ── */}
-      <section id="demo" style={{ position: 'relative', zIndex: 1, padding: '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="demo" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Live Demo</p>
@@ -450,13 +468,13 @@ export default function LandingPage() {
       </section>
 
       {/* ── Pricing ── */}
-      <section id="pricing" style={{ position: 'relative', zIndex: 1, padding: '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="pricing" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
           <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Pricing</p>
           <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 16 }}>Simple, honest pricing.</h2>
           <p style={{ fontSize: 14, color: '#a8b0c0', marginBottom: 48 }}>We're in early access. Right now ScriptForge is completely free while we build and improve.</p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24 }}>
             {[
               {
                 name: 'Free', price: '$0', period: 'forever',
@@ -501,25 +519,24 @@ export default function LandingPage() {
       </section>
 
       {/* ── Contact ── */}
-      <section id="contact" style={{ position: 'relative', zIndex: 1, padding: '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+      <section id="contact" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ maxWidth: 600, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Contact</p>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 16 }}>Get in touch.</h2>
             <p style={{ fontSize: 14, color: '#a8b0c0' }}>Have a question, feedback, or want to partner with us? We'd love to hear from you.</p>
           </div>
-          <div style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: 40 }}>
-            <ContactForm />
+          <div style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: isMobile ? 24 : 40 }}>
+            <ContactForm isMobile={isMobile}/>
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(255,255,255,0.05)', padding: '40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#070d0a' }}>✦</div>
-          Script<span style={{ color: '#63dca3' }}>Forge</span>
-        </div>
+      <footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(255,255,255,0.05)', padding: '32px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, flexDirection: isMobile ? 'column' : 'row', textAlign: isMobile ? 'center' : 'left' }}>        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18 }}>
+        <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#070d0a' }}>✦</div>
+        Script<span style={{ color: '#63dca3' }}>Forge</span>
+      </div>
         <p style={{ fontSize: 12, color: '#a8b0c0', margin: 0 }}>© 2026 ScriptForge. Built for creators.</p>
         <div style={{ display: 'flex', gap: 24 }}>
           {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
