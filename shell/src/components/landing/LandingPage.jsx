@@ -6,13 +6,13 @@ import config from '../../config';
 const API_BASE = config.API_URL || 'http://localhost:4000';
 
 const PLATFORMS = [
-  { id: 'youtube', label: 'YouTube', icon: '▶', color: '#ff4545' },
-  { id: 'instagram', label: 'Instagram', icon: '◈', color: '#e040fb' },
-  { id: 'tiktok', label: 'TikTok', icon: '♪', color: '#00f5d4' },
-  { id: 'linkedin', label: 'LinkedIn', icon: '⬡', color: '#4fa3e0' },
-  { id: 'podcast', label: 'Podcast', icon: '⊚', color: '#f0a04b' },
-  { id: 'twitter', label: 'X / Twitter', icon: '✕', color: '#5bc8e0' },
-  { id: 'custom', label: 'Custom', icon: '⊕', color: '#aaaaaa' },
+  { id: 'youtube',   label: 'YouTube',     icon: '▶', color: '#ff4545' },
+  { id: 'instagram', label: 'Instagram',   icon: '◈', color: '#e040fb' },
+  { id: 'tiktok',    label: 'TikTok',      icon: '♪', color: '#00f5d4' },
+  { id: 'linkedin',  label: 'LinkedIn',    icon: '⬡', color: '#4fa3e0' },
+  { id: 'podcast',   label: 'Podcast',     icon: '⊚', color: '#f0a04b' },
+  { id: 'twitter',   label: 'X / Twitter', icon: '✕', color: '#5bc8e0' },
+  { id: 'custom',    label: 'Custom',      icon: '⊕', color: '#aaaaaa' },
 ];
 
 const DEMO_SCRIPTS = {
@@ -74,25 +74,19 @@ Problem first. Solution second. CTA third. Every time.
 Save this for the next time you film. Your future self will thank you.`,
 };
 
-// Typewriter hook
 function useTypewriter(text, speed = 18, active = false) {
   const [displayed, setDisplayed] = useState('');
-  const [done, setDone] = useState(false);
+  const [done, setDone]           = useState(false);
   const indexRef = useRef(0);
 
   useEffect(() => {
     if (!active) { setDisplayed(''); setDone(false); indexRef.current = 0; return; }
-    setDisplayed('');
-    setDone(false);
-    indexRef.current = 0;
+    setDisplayed(''); setDone(false); indexRef.current = 0;
     const interval = setInterval(() => {
       if (indexRef.current < text.length) {
         setDisplayed(text.slice(0, indexRef.current + 1));
         indexRef.current++;
-      } else {
-        setDone(true);
-        clearInterval(interval);
-      }
+      } else { setDone(true); clearInterval(interval); }
     }, speed);
     return () => clearInterval(interval);
   }, [text, active]);
@@ -100,18 +94,6 @@ function useTypewriter(text, speed = 18, active = false) {
   return { displayed, done };
 }
 
-//monbile hook
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler);
-  }, []);
-  return isMobile;
-}
-
-// Login Modal
 function LoginModal({ onClose }) {
   const handleLogin = (provider) => {
     window.location.href = `${API_BASE}/api/auth/${provider}`;
@@ -119,57 +101,51 @@ function LoginModal({ onClose }) {
 
   return (
     <div
-      style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+      className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
       onClick={onClose}
     >
       <div
-        style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 40, width: '100%', maxWidth: 400, position: 'relative' }}
+        className="bg-surface border border-white/10 rounded-2xl p-8 w-full max-w-sm relative"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#a8b0c0', cursor: 'pointer', fontSize: 18 }}>✕</button>
+        <button onClick={onClose} className="absolute top-4 right-4 text-muted hover:text-text bg-transparent border-none cursor-pointer text-lg">✕</button>
 
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, marginBottom: 8 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#070d0a' }}>✦</div>
-            Script<span style={{ color: '#63dca3' }}>Forge</span>
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2.5 font-syne font-extrabold text-2xl mb-2">
+            <div className="w-9 h-9 rounded-xl bg-gradient-accent flex items-center justify-center text-bg text-base">✦</div>
+            Script<span className="text-accent">Forge</span>
           </div>
-          <p style={{ color: '#a8b0c0', fontSize: 13, fontFamily: '"DM Mono", monospace', margin: 0 }}>Sign in to start generating scripts</p>
+          <p className="text-muted text-xs font-mono mt-1">Sign in to start generating scripts</p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div className="flex flex-col gap-3">
           {[
-            {
-              id: 'google', label: 'Continue with Google', icon: (
-                <svg width="18" height="18" viewBox="0 0 48 48">
-                  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-                  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-                  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-                  <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-                </svg>
-              )
-            },
-            {
-              id: 'github', label: 'Continue with GitHub', icon: (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                </svg>
-              )
-            },
+            { id: 'google', label: 'Continue with Google', icon: (
+              <svg width="18" height="18" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.29-8.16 2.29-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              </svg>
+            )},
+            { id: 'github', label: 'Continue with GitHub', icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+            )},
           ].map(p => (
             <button
               key={p.id}
               onClick={() => handleLogin(p.id)}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 13, transition: 'all 0.2s' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-text cursor-pointer font-mono text-sm hover:border-white/25 transition-all"
             >
               {p.icon}
-              <span style={{ flex: 1, textAlign: 'center' }}>{p.label}</span>
+              <span className="flex-1 text-center">{p.label}</span>
             </button>
           ))}
         </div>
 
-        <p style={{ marginTop: 24, textAlign: 'center', fontSize: 11, color: '#a8b0c0', fontFamily: '"DM Mono", monospace', lineHeight: 1.6 }}>
+        <p className="mt-6 text-center text-xs text-muted font-mono leading-relaxed">
           We never store your OAuth passwords. Sessions are secured with JWT tokens.
         </p>
       </div>
@@ -177,10 +153,9 @@ function LoginModal({ onClose }) {
   );
 }
 
-// Contact form
-function ContactForm({ isMobile }) {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | sending | sent | error
+function ContactForm() {
+  const [form, setForm]     = useState({ name: '', email: '', message: '' });
+  const [status, setStatus] = useState('idle');
 
   const handleSubmit = async () => {
     if (!form.name || !form.email || !form.message) return;
@@ -198,19 +173,19 @@ function ContactForm({ isMobile }) {
 
   if (status === 'sent') {
     return (
-      <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-        <div style={{ fontSize: 40, marginBottom: 16 }}>✦</div>
-        <p style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 20, color: '#63dca3', marginBottom: 8 }}>Message sent!</p>
-        <p style={{ fontFamily: '"DM Mono", monospace', fontSize: 13, color: '#a8b0c0' }}>We'll get back to you within 24 hours.</p>
+      <div className="text-center py-12">
+        <div className="text-4xl mb-4">✦</div>
+        <p className="font-syne font-bold text-xl text-accent mb-2">Message sent!</p>
+        <p className="font-mono text-sm text-muted">We'll get back to you within 24 hours.</p>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 16 }}>
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
-          { key: 'name', placeholder: 'Your name', type: 'text' },
+          { key: 'name',  placeholder: 'Your name',      type: 'text'  },
           { key: 'email', placeholder: 'your@email.com', type: 'email' },
         ].map(f => (
           <input
@@ -219,7 +194,7 @@ function ContactForm({ isMobile }) {
             placeholder={f.placeholder}
             value={form[f.key]}
             onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-            style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 16px', color: '#eef0f6', fontFamily: '"DM Mono", monospace', fontSize: 13, outline: 'none' }}
+            className="field-input"
           />
         ))}
       </div>
@@ -228,33 +203,33 @@ function ContactForm({ isMobile }) {
         placeholder="What are you working on? How can we help?"
         value={form.message}
         onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
-        style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '12px 16px', color: '#eef0f6', fontFamily: '"DM Mono", monospace', fontSize: 13, outline: 'none', resize: 'none' }}
+        className="field-input resize-none"
       />
       <button
         onClick={handleSubmit}
         disabled={status === 'sending'}
-        style={{ padding: '14px 24px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}
+        className="btn-generate"
       >
         {status === 'sending' ? 'Sending…' : 'Send Message'}
       </button>
-      {status === 'error' && <p style={{ color: '#e05b5b', fontSize: 12, fontFamily: '"DM Mono", monospace', textAlign: 'center' }}>Something went wrong. Please try again.</p>}
+      {status === 'error' && (
+        <p className="text-danger text-xs font-mono text-center">Something went wrong. Please try again.</p>
+      )}
     </div>
   );
 }
 
 export default function LandingPage() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  const [showModal, setShowModal] = useState(false);
-  const [demoStarted, setDemoStarted] = useState(false);
-  const [demoPlatform, setDemoPlatform] = useState('youtube');
+  const { user }  = useAuth();
+  const navigate  = useNavigate();
+  const [showModal,      setShowModal]      = useState(false);
+  const [demoStarted,    setDemoStarted]    = useState(false);
+  const [demoPlatform,   setDemoPlatform]   = useState('youtube');
   const [demoGenerating, setDemoGenerating] = useState(false);
 
   const demoScript = DEMO_SCRIPTS[demoPlatform] || DEMO_SCRIPTS.youtube;
   const { displayed, done } = useTypewriter(demoScript, 12, demoStarted);
 
-  // If already logged in, go straight to app
   useEffect(() => {
     if (user) navigate('/app');
   }, [user]);
@@ -264,111 +239,102 @@ export default function LandingPage() {
   const handleDemoGenerate = () => {
     setDemoStarted(false);
     setDemoGenerating(true);
-    setTimeout(() => {
-      setDemoGenerating(false);
-      setDemoStarted(true);
-    }, 1200);
+    setTimeout(() => { setDemoGenerating(false); setDemoStarted(true); }, 1200);
   };
 
+  const activePlatform = PLATFORMS.find(p => p.id === demoPlatform);
+
   return (
-    <div style={{ background: '#080a0f', minHeight: '100vh', color: '#eef0f6', fontFamily: '"DM Mono", monospace' }}>
+    <div className="bg-bg min-h-screen text-text font-mono">
       {showModal && <LoginModal onClose={() => setShowModal(false)} />}
 
       {/* Ambient glow */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,220,163,0.06) 0%, transparent 70%)' }} />
-        <div style={{ position: 'absolute', top: '60%', left: '20%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,163,224,0.04) 0%, transparent 70%)' }} />
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-accent/5 blur-[120px]" />
+        <div className="absolute top-2/3 left-1/4 w-[400px] h-[400px] rounded-full bg-[#4fa3e0]/4 blur-[100px]" />
       </div>
 
       {/* ── Navbar ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', height: 64, background: 'rgba(8,10,15,0.9)', borderBottom: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(12px)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, color: '#070d0a' }}>✦</div>
-          Script<span style={{ color: '#63dca3' }}>Forge</span>
+      <nav className="sticky top-0 z-[100] flex items-center justify-between px-5 md:px-10 h-16 bg-bg/90 border-b border-white/6 backdrop-blur-xl">
+        <div className="flex items-center gap-2 font-syne font-extrabold text-lg md:text-xl">
+          <div className="w-8 h-8 rounded-lg bg-gradient-accent flex items-center justify-center text-bg text-sm">✦</div>
+          Script<span className="text-accent">Forge</span>
         </div>
-        {/* Hide nav links on mobile */}
-        {!isMobile && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-            {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
-              <a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                style={{ color: '#a8b0c0', fontSize: 13, textDecoration: 'none', transition: 'color 0.2s' }}
-                onMouseEnter={e => e.target.style.color = '#eef0f6'}
-                onMouseLeave={e => e.target.style.color = '#a8b0c0'}
-              >{item}</a>
-            ))}
-          </div>
-        )}
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button
-            onClick={handleGetStarted}
-            style={{ padding: isMobile ? '7px 12px' : '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 12 }}
-          >Sign In</button>
-          <button
-            onClick={handleGetStarted}
-            style={{ padding: isMobile ? '7px 12px' : '8px 20px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 12 }}
-          >Get Started</button>
+
+        <div className="hidden md:flex items-center gap-8">
+          {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
+            <a key={item} href={`#${item.toLowerCase()}`} className="text-muted text-sm hover:text-text transition-colors no-underline">{item}</a>
+          ))}
+        </div>
+
+        <div className="flex gap-2">
+          <button onClick={handleGetStarted} className="px-3 md:px-4 py-2 rounded-lg border border-white/10 bg-transparent text-text cursor-pointer font-mono text-xs hover:border-white/25 transition-all">
+            Sign In
+          </button>
+          <button onClick={handleGetStarted} className="px-3 md:px-5 py-2 rounded-lg border-none bg-gradient-accent text-bg cursor-pointer font-syne font-bold text-xs hover:-translate-y-px transition-all">
+            Get Started
+          </button>
         </div>
       </nav>
 
       {/* ── Hero ── */}
-      <section style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: isMobile ? '60px 20px 40px' : '100px 40px 80px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 20, border: '1px solid rgba(99,220,163,0.2)', background: 'rgba(99,220,163,0.06)', marginBottom: 32 }}>
-          <span style={{ color: '#63dca3', fontSize: 11 }}>✦</span>
-          <span style={{ color: '#63dca3', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase' }}>AI-Powered Script Generation</span>
+      <section className="relative z-10 text-center px-5 md:px-10 pt-16 md:pt-24 pb-12 md:pb-20">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-accent/20 bg-accent/5 mb-8">
+          <span className="text-accent text-xs">✦</span>
+          <span className="text-accent text-xs tracking-widest uppercase">AI-Powered Script Generation</span>
         </div>
 
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 'clamp(36px, 6vw, 72px)', lineHeight: 1.1, marginBottom: 24, letterSpacing: '-0.02em' }}>
+        <h1 className="font-syne font-extrabold text-4xl md:text-6xl lg:text-7xl leading-tight mb-6 tracking-tight">
           Stop staring at a<br />
-          <span style={{ background: 'linear-gradient(135deg, #63dca3, #4fa3e0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>blank page.</span>
+          <span className="bg-gradient-to-r from-accent to-[#4fa3e0] bg-clip-text text-transparent">blank page.</span>
         </h1>
 
-        <p style={{ fontSize: 18, color: '#a8b0c0', maxWidth: 520, margin: '0 auto 40px', lineHeight: 1.7 }}>
+        <p className="text-base md:text-lg text-muted max-w-xl mx-auto mb-10 leading-relaxed">
           AI-powered scripts for every platform. YouTube, TikTok, Instagram, LinkedIn and more — generated in seconds, engineered to perform.
         </p>
 
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center' }}>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
           <button
             onClick={handleGetStarted}
-            style={{ padding: '14px 32px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15, boxShadow: '0 8px 32px rgba(99,220,163,0.25)', width: isMobile ? '100%' : 'auto' }}
+            className="w-full sm:w-auto px-8 py-4 rounded-xl border-none bg-gradient-accent text-bg cursor-pointer font-syne font-bold text-base hover:-translate-y-px transition-all shadow-[0_8px_32px_rgba(99,220,163,0.25)]"
           >✦ Start Generating Free</button>
           <a
             href="#demo"
-            style={{ padding: '14px 32px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 13, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: isMobile ? '100%' : 'auto' }}
+            className="w-full sm:w-auto px-8 py-4 rounded-xl border border-white/10 bg-transparent text-text font-mono text-sm no-underline inline-flex items-center justify-center hover:border-white/25 transition-all"
           >Watch Demo →</a>
         </div>
 
         {/* Stats */}
-        <div style={{ display: 'flex', gap: isMobile ? 24 : 48, justifyContent: 'center', marginTop: 48, flexWrap: 'wrap' }}>          {[
-          { value: '7', label: 'Platforms' },
-          { value: '10+', label: 'Script Styles' },
-          { value: '<30s', label: 'Generation Time' },
-          { value: '100%', label: 'AI-Powered' },
-        ].map(s => (
-          <div key={s.label} style={{ textAlign: 'center' }}>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 32, color: '#63dca3' }}>{s.value}</div>
-            <div style={{ fontSize: 11, color: '#a8b0c0', textTransform: 'uppercase', letterSpacing: '0.1em', marginTop: 4 }}>{s.label}</div>
-          </div>
-        ))}
+        <div className="flex flex-wrap gap-8 md:gap-12 justify-center mt-16">
+          {[
+            { value: '7',    label: 'Platforms' },
+            { value: '10+',  label: 'Script Styles' },
+            { value: '<30s', label: 'Generation Time' },
+            { value: '100%', label: 'AI-Powered' },
+          ].map(s => (
+            <div key={s.label} className="text-center">
+              <div className="font-syne font-extrabold text-3xl text-accent">{s.value}</div>
+              <div className="text-xs text-muted uppercase tracking-widest mt-1">{s.label}</div>
+            </div>
+          ))}
         </div>
       </section>
 
       {/* ── Platforms ── */}
-      <section id="features" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Supported Platforms</p>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 48 }}>Every platform. One tool.</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 16 }}>
+      <section id="features" className="relative z-10 px-5 md:px-10 py-16 md:py-20 border-t border-white/5">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">Supported Platforms</p>
+          <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-12">Every platform. One tool.</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-4">
             {PLATFORMS.map(p => (
               <div
                 key={p.id}
-                style={{ padding: '24px 16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.07)', background: '#0e1118', textAlign: 'center', transition: 'all 0.2s', cursor: 'default' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = p.color + '60'; e.currentTarget.style.background = p.color + '10'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.background = '#0e1118'; }}
+                className="py-6 px-4 rounded-2xl border border-white/7 bg-surface text-center transition-all duration-200 cursor-default card-surface"
+                onMouseEnter={e => { e.currentTarget.style.borderColor = p.color + '60'; e.currentTarget.style.background = p.color + '12'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = ''; e.currentTarget.style.background = ''; }}
               >
-                <div style={{ fontSize: 28, color: p.color, marginBottom: 10 }}>{p.icon}</div>
-                <div style={{ fontSize: 12, fontFamily: 'Syne, sans-serif', fontWeight: 700 }}>{p.label}</div>
+                <div className="text-3xl mb-2" style={{ color: p.color }}>{p.icon}</div>
+                <div className="text-xs font-syne font-bold">{p.label}</div>
               </div>
             ))}
           </div>
@@ -376,21 +342,21 @@ export default function LandingPage() {
       </section>
 
       {/* ── How It Works ── */}
-      <section style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>How It Works</p>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 64 }}>Three steps to your script.</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 32 }}>
+      <section className="relative z-10 px-5 md:px-10 py-16 md:py-20 border-t border-white/5">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">How It Works</p>
+          <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-16">Three steps to your script.</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { step: '01', title: 'Pick your platform', desc: 'Choose from YouTube, TikTok, Instagram, LinkedIn, Podcast, Twitter or Custom.', icon: '⊞', color: '#63dca3' },
-              { step: '02', title: 'Configure your script', desc: 'Set your topic, tone, hook style, duration and target audience. The more specific, the better.', icon: '⚙', color: '#4fa3e0' },
-              { step: '03', title: 'Generate & use', desc: 'Get a complete, ready-to-record script with hooks, hashtags, and a content brief. In seconds.', icon: '✦', color: '#f0a04b' },
+              { step: '01', title: 'Pick your platform',   desc: 'Choose from YouTube, TikTok, Instagram, LinkedIn, Podcast, Twitter or Custom.', icon: '⊞', color: 'text-accent' },
+              { step: '02', title: 'Configure your script', desc: 'Set your topic, tone, hook style, duration and target audience. The more specific, the better.', icon: '⚙', color: 'text-[#4fa3e0]' },
+              { step: '03', title: 'Generate & use',        desc: 'Get a complete, ready-to-record script with hooks, hashtags, and a content brief. In seconds.', icon: '✦', color: 'text-[#f0a04b]' },
             ].map(s => (
-              <div key={s.step} style={{ padding: 32, borderRadius: 20, border: '1px solid rgba(255,255,255,0.07)', background: '#0e1118', textAlign: 'left', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: 16, right: 20, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 48, color: 'rgb(255 255 255 / 34%)' }}>{s.step}</div>
-                <div style={{ fontSize: 28, color: s.color, marginBottom: 16 }}>{s.icon}</div>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 18, marginBottom: 12 }}>{s.title}</h3>
-                <p style={{ fontSize: 13, color: '#a8b0c0', lineHeight: 1.7, margin: 0 }}>{s.desc}</p>
+              <div key={s.step} className="p-8 rounded-2xl border border-white/7 bg-surface text-left relative overflow-hidden">
+                <div className="absolute top-4 right-5 font-syne font-extrabold text-5xl text-white/5">{s.step}</div>
+                <div className={`text-3xl mb-4 ${s.color}`}>{s.icon}</div>
+                <h3 className="font-syne font-bold text-lg mb-3">{s.title}</h3>
+                <p className="text-sm text-muted leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -398,119 +364,119 @@ export default function LandingPage() {
       </section>
 
       {/* ── Live Demo ── */}
-      <section id="demo" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 800, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Live Demo</p>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 16 }}>See it in action.</h2>
-            <p style={{ fontSize: 14, color: '#a8b0c0' }}>Pick a platform and watch ScriptForge generate a script in real time.</p>
+      <section id="demo" className="relative z-10 px-5 md:px-10 py-16 md:py-20 border-t border-white/5">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">Live Demo</p>
+            <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-4">See it in action.</h2>
+            <p className="text-sm text-muted">Pick a platform and watch ScriptForge generate a script in real time.</p>
           </div>
 
           {/* Platform picker */}
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 24 }}>
+          <div className="flex flex-wrap gap-2 justify-center mb-6">
             {PLATFORMS.filter(p => DEMO_SCRIPTS[p.id]).map(p => (
               <button
                 key={p.id}
                 onClick={() => { setDemoPlatform(p.id); setDemoStarted(false); }}
-                style={{ padding: '8px 16px', borderRadius: 20, border: `1px solid ${demoPlatform === p.id ? p.color : 'rgba(255,255,255,0.07)'}`, background: demoPlatform === p.id ? p.color + '15' : 'transparent', color: demoPlatform === p.id ? p.color : '#a8b0c0', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 12, display: 'flex', alignItems: 'center', gap: 6 }}
+                className="px-4 py-2 rounded-full font-mono text-xs flex items-center gap-1.5 cursor-pointer transition-all"
+                style={{
+                  border: `1px solid ${demoPlatform === p.id ? p.color : 'rgba(255,255,255,0.07)'}`,
+                  background: demoPlatform === p.id ? p.color + '15' : 'transparent',
+                  color: demoPlatform === p.id ? p.color : '#a8b0c0',
+                }}
               >
                 <span>{p.icon}</span>{p.label}
               </button>
             ))}
           </div>
 
-          {/* Script output */}
-          <div style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, overflow: 'hidden', marginBottom: 20 }}>
-            <div style={{ padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.07)', background: '#141720', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13 }}>
-                <span style={{ color: PLATFORMS.find(p => p.id === demoPlatform)?.color }}>
-                  {PLATFORMS.find(p => p.id === demoPlatform)?.icon}
-                </span>&nbsp;Generated Script
+          {/* Script output box */}
+          <div className="bg-surface border border-white/7 rounded-2xl overflow-hidden mb-5">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-white/7 bg-surface2">
+              <div className="font-syne font-bold text-sm">
+                <span style={{ color: activePlatform?.color }}>{activePlatform?.icon}</span>
+                <span className="ml-1">Generated Script</span>
               </div>
-              <span style={{ fontSize: 10, color: '#63dca3', fontFamily: '"DM Mono", monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+              <span className="text-xs text-accent font-mono uppercase tracking-widest">
                 {demoGenerating ? '⟳ Generating…' : done ? '✓ Complete' : demoStarted ? '● Writing…' : 'Ready'}
               </span>
             </div>
-            <div style={{ padding: 24, minHeight: 280, fontFamily: '"Instrument Serif", serif', fontSize: 15, lineHeight: 1.85, color: '#eef0f6', whiteSpace: 'pre-wrap' }}>
+            <div className="p-6 min-h-[280px] font-serif text-base leading-relaxed text-text whitespace-pre-wrap">
               {demoGenerating ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div className="flex flex-col gap-3">
                   {[100, 80, 100, 60, 90, 70].map((w, i) => (
-                    <div key={i} style={{ height: 14, borderRadius: 4, width: `${w}%`, background: 'linear-gradient(90deg, #141720 25%, rgba(255,255,255,0.07) 50%, #141720 75%)', backgroundSize: '200% 100%', animation: `shimmer 1.5s ${i * 0.1}s ease-in-out infinite` }} />
+                    <div key={i} className="h-3.5 rounded bg-surface2 animate-pulse" style={{ width: `${w}%` }} />
                   ))}
-                  <style>{`@keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }`}</style>
                 </div>
               ) : demoStarted ? (
                 <>
                   {displayed}
-                  {!done && <span style={{ animation: 'blink 1s step-end infinite', color: '#63dca3' }}>▌</span>}
-                  <style>{`@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }`}</style>
+                  {!done && <span className="text-accent animate-[blink_1s_step-end_infinite]">▌</span>}
                 </>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 200, gap: 12, color: '#a8b0c0' }}>
-                  <span style={{ fontSize: 40, opacity: 0.3 }}>✦</span>
-                  <p style={{ fontSize: 13, margin: 0 }}>Click "Generate Script" to see a demo</p>
+                <div className="flex flex-col items-center justify-center h-48 gap-3 text-muted">
+                  <span className="text-4xl opacity-30">✦</span>
+                  <p className="text-sm">Click "Generate Script" to see a demo</p>
                 </div>
               )}
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button
-              onClick={handleDemoGenerate}
-              style={{ padding: '14px 32px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a', cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14 }}
-            >✦ Generate Script</button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onClick={handleDemoGenerate} className="btn-generate sm:w-auto px-8">
+              ✦ Generate Script
+            </button>
             <button
               onClick={handleGetStarted}
-              style={{ padding: '14px 32px', borderRadius: 10, border: '1px solid rgba(99,220,163,0.3)', background: 'rgba(99,220,163,0.05)', color: '#63dca3', cursor: 'pointer', fontFamily: '"DM Mono", monospace', fontSize: 13 }}
+              className="px-8 py-3.5 rounded-lg border border-accent/30 bg-accent/5 text-accent cursor-pointer font-mono text-sm hover:bg-accent/10 transition-all"
             >Sign in for real scripts →</button>
           </div>
         </div>
       </section>
 
       {/* ── Pricing ── */}
-      <section id="pricing" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Pricing</p>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 16 }}>Simple, honest pricing.</h2>
-          <p style={{ fontSize: 14, color: '#a8b0c0', marginBottom: 48 }}>We're in early access. Right now ScriptForge is completely free while we build and improve.</p>
+      <section id="pricing" className="relative z-10 px-5 md:px-10 py-16 md:py-20 border-t border-white/5">
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">Pricing</p>
+          <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-4">Simple, honest pricing.</h2>
+          <p className="text-sm text-muted mb-12">We're in early access. Right now ScriptForge is completely free while we build and improve.</p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: 24 }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {[
               {
                 name: 'Free', price: '$0', period: 'forever',
-                color: '#a8b0c0',
+                color: '#a8b0c0', borderClass: 'border-muted/20',
                 features: ['5 scripts per month', 'All 7 platforms', 'Script history (7 days)', 'Hooks & hashtags'],
-                cta: 'Get Started Free', ctaStyle: { border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: '#eef0f6' },
+                cta: 'Get Started Free',
+                ctaClass: 'border border-white/10 bg-transparent text-text hover:border-white/25',
               },
               {
                 name: 'Pro', price: 'Coming Soon', period: '',
-                color: '#63dca3',
-                badge: 'Soon',
-                features: ['Unlimited scripts', 'All 7 platforms', 'Unlimited history', 'Director\'s Cut', 'Export PDF/DOCX', 'Priority generation'],
-                cta: 'Join Waitlist', ctaStyle: { border: 'none', background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', color: '#070d0a' },
+                color: '#63dca3', borderClass: 'border-accent/20', badge: 'Soon',
+                bg: 'bg-accent/4',
+                features: ["Unlimited scripts", 'All 7 platforms', 'Unlimited history', "Director's Cut", 'Export PDF/DOCX', 'Priority generation'],
+                cta: 'Join Waitlist',
+                ctaClass: 'border-none bg-gradient-accent text-bg hover:-translate-y-px shadow-[0_4px_16px_rgba(99,220,163,0.2)]',
               },
             ].map(plan => (
-              <div
-                key={plan.name}
-                style={{ padding: 32, borderRadius: 20, border: `1px solid ${plan.color}30`, background: plan.name === 'Pro' ? 'rgba(99,220,163,0.04)' : '#0e1118', textAlign: 'left', position: 'relative' }}
-              >
+              <div key={plan.name} className={`p-8 rounded-2xl border ${plan.borderClass} ${plan.bg || 'bg-surface'} text-left relative`}>
                 {plan.badge && (
-                  <div style={{ position: 'absolute', top: 16, right: 16, padding: '3px 10px', borderRadius: 20, background: 'rgba(99,220,163,0.15)', border: '1px solid rgba(99,220,163,0.3)', fontSize: 10, color: '#63dca3', fontFamily: '"DM Mono", monospace' }}>{plan.badge}</div>
+                  <div className="absolute top-4 right-4 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-xs text-accent font-mono">{plan.badge}</div>
                 )}
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18, marginBottom: 8 }}>{plan.name}</div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 32, color: plan.color, marginBottom: 4 }}>{plan.price}</div>
-                {plan.period && <div style={{ fontSize: 12, color: '#a8b0c0', marginBottom: 24 }}>{plan.period}</div>}
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '16px 0 20px' }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+                <div className="font-syne font-extrabold text-lg mb-2">{plan.name}</div>
+                <div className="font-syne font-extrabold text-3xl mb-1" style={{ color: plan.color }}>{plan.price}</div>
+                {plan.period && <div className="text-xs text-muted mb-6">{plan.period}</div>}
+                <div className="h-px bg-white/5 my-4" />
+                <div className="flex flex-col gap-2.5 mb-7">
                   {plan.features.map(f => (
-                    <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#a8b0c0' }}>
-                      <span style={{ color: plan.color, fontSize: 10 }}>✓</span>{f}
+                    <div key={f} className="flex items-center gap-2.5 text-sm text-muted">
+                      <span className="text-xs" style={{ color: plan.color }}>✓</span>{f}
                     </div>
                   ))}
                 </div>
                 <button
                   onClick={handleGetStarted}
-                  style={{ width: '100%', padding: '12px', borderRadius: 10, cursor: 'pointer', fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 14, ...plan.ctaStyle }}
+                  className={`w-full py-3 rounded-xl cursor-pointer font-syne font-bold text-sm transition-all ${plan.ctaClass}`}
                 >{plan.cta}</button>
               </div>
             ))}
@@ -519,31 +485,37 @@ export default function LandingPage() {
       </section>
 
       {/* ── Contact ── */}
-      <section id="contact" style={{ position: 'relative', zIndex: 1, padding: isMobile ? '60px 20px' : '80px 40px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: 600, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <p style={{ fontSize: 11, color: '#63dca3', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 16 }}>Contact</p>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 36, marginBottom: 16 }}>Get in touch.</h2>
-            <p style={{ fontSize: 14, color: '#a8b0c0' }}>Have a question, feedback, or want to partner with us? We'd love to hear from you.</p>
+      <section id="contact" className="relative z-10 px-5 md:px-10 py-16 md:py-20 border-t border-white/5">
+        <div className="max-w-xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">Contact</p>
+            <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-4">Get in touch.</h2>
+            <p className="text-sm text-muted">Have a question, feedback, or want to partner with us? We'd love to hear from you.</p>
           </div>
-          <div style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: isMobile ? 24 : 40 }}>
-            <ContactForm isMobile={isMobile}/>
+          <div className="bg-surface border border-white/7 rounded-2xl p-6 md:p-10">
+            <ContactForm />
           </div>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(255,255,255,0.05)', padding: '32px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, flexDirection: isMobile ? 'column' : 'row', textAlign: isMobile ? 'center' : 'left' }}>        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18 }}>
-        <div style={{ width: 28, height: 28, borderRadius: 6, background: 'linear-gradient(135deg, #63dca3, #1a9a6a)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: '#070d0a' }}>✦</div>
-        Script<span style={{ color: '#63dca3' }}>Forge</span>
-      </div>
-        <p style={{ fontSize: 12, color: '#a8b0c0', margin: 0 }}>© 2026 ScriptForge. Built for creators.</p>
-        <div style={{ display: 'flex', gap: 24 }}>
+      <footer className="relative z-10 border-t border-white/5 px-5 md:px-10 py-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+        <div className="flex items-center gap-2 font-syne font-extrabold text-lg">
+          <div className="w-7 h-7 rounded-md bg-gradient-accent flex items-center justify-center text-bg text-sm">✦</div>
+          Script<span className="text-accent">Forge</span>
+        </div>
+        <p className="text-xs text-muted">© 2026 ScriptForge. Built for creators.</p>
+        <div className="flex gap-6">
           {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`} style={{ fontSize: 12, color: '#a8b0c0', textDecoration: 'none' }}>{item}</a>
+            <a key={item} href={`#${item.toLowerCase()}`} className="text-xs text-muted hover:text-text no-underline transition-colors">{item}</a>
           ))}
         </div>
       </footer>
+
+      <style>{`
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        .no-underline { text-decoration: none; }
+      `}</style>
     </div>
   );
 }
