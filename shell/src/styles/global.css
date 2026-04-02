@@ -9,7 +9,6 @@
     color: #eef0f6;
   }
 
-  /* Noise overlay on body */
   body::before {
     content: '';
     position: fixed;
@@ -23,31 +22,40 @@
 
 @layer components {
   .btn-generate {
-    @apply w-full py-3.5 font-syne font-bold tracking-wide rounded-lg border-0 cursor-pointer
-           bg-gradient-accent text-[#070d0a] transition-all duration-200;
+    @apply w-full py-3.5 font-syne font-bold tracking-wide rounded-lg border-0 cursor-pointer transition-all duration-200;
+    background: linear-gradient(135deg, #63dca3 0%, #1a9a6a 100%);
+    color: #070d0a;
   }
+
   .btn-generate:hover {
     @apply -translate-y-px;
     box-shadow: 0 8px 32px rgba(99, 220, 163, 0.25);
   }
+
   .btn-generate:disabled {
     @apply opacity-50 cursor-not-allowed translate-y-0;
     box-shadow: none;
   }
 
   .field-label {
-    @apply text-[10px] text-muted tracking-widest uppercase;
+    @apply text-[10px] tracking-widest uppercase;
+    color: #a8b0c0;
   }
 
   .field-input {
-    @apply bg-surface border border-white/7 rounded-md text-text font-mono text-xs px-3 py-2.5
-           outline-none transition-colors duration-200 w-full;
+    @apply rounded-md font-mono text-xs px-3 py-2.5 outline-none transition-colors duration-200 w-full border;
+    background-color: #0e1118;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #eef0f6;
   }
+
   .field-input:focus {
-    @apply border-accent;
+    border-color: #63dca3;
   }
 
   .card-surface {
-    @apply bg-surface border border-white/7 rounded-xl;
+    @apply rounded-xl border;
+    background-color: #0e1118;
+    border-color: rgba(255, 255, 255, 0.1);
   }
 }
