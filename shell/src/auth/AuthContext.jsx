@@ -99,20 +99,27 @@ useEffect(() => {
   return () => { if (timerRef.current) clearTimeout(timerRef.current); };
 }, []);
 
-  const logout = useCallback(async () => {
-    const rt = RT.load();
-    try {
-      await fetch(`${API}/api/auth/logout`, {
-        method:  'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(atRef.current ? { Authorization: `Bearer ${atRef.current}` } : {}),
-        },
-        body: JSON.stringify({ refreshToken: rt }),
-      });
-    } catch {}
-    clearSession();
-  }, [clearSession]);
+const logout = useCallback(async () => {
+  const rt = RT.load();
+  try {
+    await fetch(`${API}/api/auth/logout`, {
+      method:  'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(atRef.current ? { Authorization: `Bearer ${atRef.current}` } : {}),
+      },
+      body: JSON.stringify({ refreshToken: rt }),
+    });
+  } catch {}
+  clearSession();
+  // Clear all persisted state so landing page doesn't auto-redirect
+  try {
+    sessionStorage.removeItem('sf_restored');
+    sessionStorage.removeItem('sf_directors_map');
+    sessionStorage.removeItem('sf_active_history_id');
+  } catch {}
+  window.location.href = '/';
+}, [clearSession]);
 
   const authFetch = useCallback(async (url, options = {}) => {
     const fullUrl = url.startsWith('http') ? url : `${API}${url}`;
