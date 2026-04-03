@@ -113,5 +113,6 @@ export const selectResult = (s) => s.script.result;
 export const selectStatus = (s) => s.script.status;
 export const selectError = (s) => s.script.error;
 export const selectActiveTab = (s) => s.script.activeTab;
+export const selectScriptId = (s) => s.script.scriptId;
 
 export default scriptSlice.reducer;
