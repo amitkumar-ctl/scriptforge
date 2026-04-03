@@ -84,7 +84,7 @@ const historySlice = createSlice({
         platform,
         topic:     config.topic,
         config:    { ...config },
-        result:    action.payload,
+        result:    action.payload.result,
         createdAt: new Date().toISOString(),
       };
       state.items = [entry, ...state.items].slice(0, MAX_LOCAL);
