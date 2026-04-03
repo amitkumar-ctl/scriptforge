@@ -1,13 +1,10 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// ─── Async thunk ──────────────────────────────────────────────────────
-// authFetch is passed in from the component via the thunk argument
-// so the token stays in AuthContext (never in Redux)
 function loadPersistedScript() {
   try {
     const saved = sessionStorage.getItem('sf_restored');
     if (saved) return JSON.parse(saved);
-  } catch { }
+  } catch {}
   return null;
 }
 
@@ -27,7 +24,7 @@ export const generateScript = createAsyncThunk(
       }
       const data = await res.json();
       return {
-        result: data.data,
+        result:   data.data,
         scriptId: data.meta.scriptId,
       };
     } catch (e) {
@@ -36,28 +33,27 @@ export const generateScript = createAsyncThunk(
   }
 );
 
-// ─── Duration defaults per platform ──────────────────────────────────
 export const durationsByPlatform = {
-  youtube: ['3 min', '5 min', '8 min', '12 min', '20 min'],
+  youtube:   ['3 min', '5 min', '8 min', '12 min', '20 min'],
   instagram: ['15 sec', '30 sec', '60 sec', '90 sec'],
-  tiktok: ['15 sec', '30 sec', '60 sec', '3 min'],
-  linkedin: ['1 min', '2 min', '5 min'],
-  podcast: ['5 min', '15 min', '30 min', '60 min'],
-  twitter: ['30 sec', '1 min'],
-  custom: ['1 min', '5 min', '10 min', 'Custom'],
+  tiktok:    ['15 sec', '30 sec', '60 sec', '3 min'],
+  linkedin:  ['1 min', '2 min', '5 min'],
+  podcast:   ['5 min', '15 min', '30 min', '60 min'],
+  twitter:   ['30 sec', '1 min'],
+  custom:    ['1 min', '5 min', '10 min', 'Custom'],
 };
 
 const initialState = {
   platform: persisted?.platform || 'youtube',
-  config: persisted?.config || {
+  config:   persisted?.config || {
     topic: '', audience: '', duration: '5 min',
     tone: 'Energetic', hook: 'Bold Claim',
     language: 'English', cta: 'Subscribe', notes: '',
   },
-  result: persisted?.result || null,
-  scriptId: persisted?.scriptId || null,
-  status: persisted ? 'succeeded' : 'idle',
-  error: null,
+  result:   persisted?.result    || null,
+  scriptId: persisted?.scriptId  || null,
+  status:   persisted ? 'succeeded' : 'idle',
+  error:    null,
   activeTab: 'script',
 };
 
@@ -78,41 +74,71 @@ const scriptSlice = createSlice({
       state.activeTab = action.payload;
     },
     clearResult(state) {
-      state.result = null;
-      state.status = 'idle';
-      state.error = null;
-      try { sessionStorage.removeItem('sf_restored'); } catch { }
+      state.result   = null;
+      state.scriptId = null;
+      state.status   = 'idle';
+      state.error    = null;
+      try { sessionStorage.removeItem('sf_restored'); } catch {}
     },
     restoreFromHistory(state, action) {
-      const { platform, config, result } = action.payload;
-      state.platform = platform;
-      state.config = config;
-      state.result = result;
-      state.scriptId = id || null;
-      state.status = 'succeeded';
+      const { platform, config, result, id, _id, directorsCut } = action.payload;
+      const scriptId = id || (_id ? _id.toString() : null); // ← fix Bug 1
+      state.platform  = platform;
+      state.config    = config;
+      state.result    = result;
+      state.scriptId  = scriptId;
+      state.status    = 'succeeded';
       state.activeTab = 'script';
-      // persist so refresh doesn't wipe it
       try {
-        sessionStorage.setItem('sf_restored', JSON.stringify({ platform, config, result }));
-      } catch { }
+        sessionStorage.setItem('sf_restored', JSON.stringify({ platform, config, result, scriptId }));
+      } catch {}
+    },
+    resetConfig(state) {
+      state.platform  = 'youtube';
+      state.scriptId  = null;
+      state.config    = {
+        topic: '', audience: '', duration: '5 min',
+        tone: 'Energetic', hook: 'Bold Claim',
+        language: 'English', cta: 'Subscribe', notes: '',
+      };
+      state.result    = null;
+      state.status    = 'idle';
+      state.error     = null;
+      try { sessionStorage.removeItem('sf_restored'); } catch {}
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(generateScript.pending, (state) => { state.status = 'loading'; state.result = null; state.error = null; })
-      .addCase(generateScript.fulfilled, (state, action) => { state.status = 'succeeded'; state.result = action.payload; state.scriptId = action.payload.scriptId; state.activeTab = 'script'; })
-      .addCase(generateScript.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload || 'Unknown error'; });
+      .addCase(generateScript.pending, (state) => {
+        state.status   = 'loading';
+        state.result   = null;
+        state.scriptId = null;
+        state.error    = null;
+      })
+      .addCase(generateScript.fulfilled, (state, action) => {
+        state.status   = 'succeeded';
+        state.result   = action.payload.result;   // ← fix Bug 2
+        state.scriptId = action.payload.scriptId;
+        state.activeTab = 'script';
+      })
+      .addCase(generateScript.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error  = action.payload || 'Unknown error';
+      });
   },
 });
 
-export const { setPlatform, setConfigField, setActiveTab, clearResult, restoreFromHistory } = scriptSlice.actions;
+export const {
+  setPlatform, setConfigField, setActiveTab,
+  clearResult, restoreFromHistory, resetConfig,
+} = scriptSlice.actions;
 
-export const selectPlatform = (s) => s.script.platform;
-export const selectConfig = (s) => s.script.config;
-export const selectResult = (s) => s.script.result;
-export const selectStatus = (s) => s.script.status;
-export const selectError = (s) => s.script.error;
+export const selectPlatform  = (s) => s.script.platform;
+export const selectConfig    = (s) => s.script.config;
+export const selectResult    = (s) => s.script.result;
+export const selectStatus    = (s) => s.script.status;
+export const selectError     = (s) => s.script.error;
 export const selectActiveTab = (s) => s.script.activeTab;
-export const selectScriptId = (s) => s.script.scriptId;
+export const selectScriptId  = (s) => s.script.scriptId;
 
 export default scriptSlice.reducer;
