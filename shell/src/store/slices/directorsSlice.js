@@ -48,7 +48,6 @@ const directorsSlice = createSlice({
       state.result      = result;
       state.currentHash = scriptHash;
       state.status      = 'succeeded';
-      // save into the map
       const map = loadMap();
       map[scriptHash] = result;
       saveMap(map);
@@ -63,17 +62,31 @@ const directorsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // New generation — clear current view only, don't wipe the map
     builder.addCase(generateScript.pending, (state) => {
       state.result      = null;
       state.currentHash = null;
       state.status      = 'idle';
     });
 
-    // Restoring history — look up the map for this script's cut
+    // When restoring history — check if directorsCut came from DB
     builder.addCase(restoreFromHistory, (state, action) => {
       const hash = getScriptHash(action.payload?.result?.full);
       state.currentHash = hash;
+
+      // First check DB result (from history item)
+      if (action.payload?.directorsCut) {
+        state.result = action.payload.directorsCut;
+        state.status = 'succeeded';
+        // Also save to local map for quick access
+        if (hash) {
+          const map = loadMap();
+          map[hash] = action.payload.directorsCut;
+          saveMap(map);
+        }
+        return;
+      }
+
+      // Fall back to sessionStorage map
       if (hash) {
         const map = loadMap();
         state.result = map[hash] || null;

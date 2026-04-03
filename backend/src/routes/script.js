@@ -48,6 +48,26 @@ router.post('/directors-cut', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// PATCH /api/script/:id/directors-cut — save directors cut to existing script
+router.patch('/:id/directors-cut', requireAuth, async (req, res, next) => {
+  try {
+    const { directorsCut } = req.body;
+    if (!directorsCut) {
+      return res.status(400).json({ error: 'directorsCut is required' });
+    }
+
+    const script = await Script.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.id },
+      { $set: { directorsCut } },
+      { new: true }
+    );
+
+    if (!script) return res.status(404).json({ error: 'Script not found or not yours' });
+
+    res.json({ success: true });
+  } catch (err) { next(err); }
+});
+
 // GET /api/script/history
 router.get('/history', requireAuth, async (req, res, next) => {
   try {
@@ -72,6 +92,7 @@ router.get('/history', requireAuth, async (req, res, next) => {
         config: s.config,
         result: s.result,
         createdAt: s.createdAt,
+        directorsCut: s.directorsCut || null,
       })),
       total, limit, offset,
     });

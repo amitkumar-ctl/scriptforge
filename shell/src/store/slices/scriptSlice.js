@@ -26,7 +26,10 @@ export const generateScript = createAsyncThunk(
         return rejectWithValue(err.error || 'Generation failed');
       }
       const data = await res.json();
-      return data.data;
+      return {
+        result: data.data,
+        scriptId: data.meta.scriptId,
+      };
     } catch (e) {
       return rejectWithValue(e.message || 'Network error');
     }
@@ -52,6 +55,7 @@ const initialState = {
     language: 'English', cta: 'Subscribe', notes: '',
   },
   result: persisted?.result || null,
+  scriptId: persisted?.scriptId || null,
   status: persisted ? 'succeeded' : 'idle',
   error: null,
   activeTab: 'script',
@@ -84,6 +88,7 @@ const scriptSlice = createSlice({
       state.platform = platform;
       state.config = config;
       state.result = result;
+      state.scriptId = id || null;
       state.status = 'succeeded';
       state.activeTab = 'script';
       // persist so refresh doesn't wipe it
@@ -95,7 +100,7 @@ const scriptSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(generateScript.pending, (state) => { state.status = 'loading'; state.result = null; state.error = null; })
-      .addCase(generateScript.fulfilled, (state, action) => { state.status = 'succeeded'; state.result = action.payload; state.activeTab = 'script'; })
+      .addCase(generateScript.fulfilled, (state, action) => { state.status = 'succeeded'; state.result = action.payload; state.scriptId = action.payload.scriptId; state.activeTab = 'script'; })
       .addCase(generateScript.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload || 'Unknown error'; });
   },
 });
