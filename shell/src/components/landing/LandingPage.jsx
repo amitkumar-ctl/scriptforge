@@ -306,8 +306,8 @@ export default function LandingPage() {
         {/* Stats */}
         <div className="flex flex-wrap gap-8 md:gap-12 justify-center mt-16">
           {[
-            { value: '7',    label: 'Platforms' },
-            { value: '10+',  label: 'Script Styles' },
+            { value: '6',    label: 'Platforms' },
+            { value: '10',  label: 'Script Styles' },
             { value: '<30s', label: 'Generation Time' },
             { value: '100%', label: 'AI-Powered' },
           ].map(s => (
@@ -324,7 +324,7 @@ export default function LandingPage() {
         <div className="max-w-4xl mx-auto text-center">
           <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">Supported Platforms</p>
           <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-12">Every platform. One tool.</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
             {PLATFORMS.map(p => (
               <div
                 key={p.id}
@@ -347,7 +347,7 @@ export default function LandingPage() {
           <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-16">Three steps to your script.</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { step: '01', title: 'Pick your platform',   desc: 'Choose from YouTube, TikTok, Instagram, LinkedIn, Podcast, Twitter or Custom.', icon: '⊞', color: 'text-accent' },
+              { step: '01', title: 'Pick your platform',   desc: 'Choose from YouTube, TikTok, Instagram, LinkedIn, Podcast, Twitter', icon: '⊞', color: 'text-accent' },
               { step: '02', title: 'Configure your script', desc: 'Set your topic, tone, hook style, duration and target audience. The more specific, the better.', icon: '⚙', color: 'text-[#4fa3e0]' },
               { step: '03', title: 'Generate & use',        desc: 'Get a complete, ready-to-record script with hooks, hashtags, and a content brief. In seconds.', icon: '✦', color: 'text-[#f0a04b]' },
             ].map(s => (
@@ -445,7 +445,7 @@ export default function LandingPage() {
               {
                 name: 'Free', price: '$0', period: 'forever',
                 color: '#a8b0c0', borderClass: 'border-muted/20',
-                features: ['5 scripts per month', 'All 7 platforms', 'Script history (7 days)', 'Hooks & hashtags'],
+                features: ['5 scripts per month', 'All 6 platforms', 'Script history (7 days)', 'Hooks & hashtags'],
                 cta: 'Get Started Free',
                 ctaClass: 'border border-white/10 bg-transparent text-text hover:border-white/25',
               },
@@ -453,7 +453,7 @@ export default function LandingPage() {
                 name: 'Pro', price: 'Coming Soon', period: '',
                 color: '#63dca3', borderClass: 'border-accent/20', badge: 'Soon',
                 bg: 'bg-accent/4',
-                features: ["Unlimited scripts", 'All 7 platforms', 'Unlimited history', "Director's Cut", 'Export PDF/DOCX', 'Priority generation'],
+                features: ["Unlimited scripts", 'All 6 platforms', 'Unlimited history', "Director's Cut", 'Export PDF/DOCX', 'Priority generation'],
                 cta: 'Join Waitlist',
                 ctaClass: 'border-none bg-gradient-accent text-bg hover:-translate-y-px shadow-[0_4px_16px_rgba(99,220,163,0.2)]',
               },
