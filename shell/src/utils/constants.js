@@ -5,7 +5,6 @@ export const PLATFORMS = [
   { id: 'linkedin',  label: 'LinkedIn',    icon: '⬡', color: '#4fa3e0', rgb: '79,163,224' },
   { id: 'podcast',   label: 'Podcast',     icon: '⊚', color: '#f0a04b', rgb: '240,160,75' },
   { id: 'twitter',   label: 'X / Twitter', icon: '✕', color: '#5bc8e0', rgb: '91,200,224' },
-  { id: 'custom',    label: 'Custom',      icon: '⊕', color: '#aaaaaa', rgb: '170,170,170' },
 ];
 
 export const TONES = [

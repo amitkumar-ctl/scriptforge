@@ -12,7 +12,6 @@ const PLATFORMS = [
   { id: 'linkedin',  label: 'LinkedIn',    icon: '⬡', color: '#4fa3e0' },
   { id: 'podcast',   label: 'Podcast',     icon: '⊚', color: '#f0a04b' },
   { id: 'twitter',   label: 'X / Twitter', icon: '✕', color: '#5bc8e0' },
-  { id: 'custom',    label: 'Custom',      icon: '⊕', color: '#aaaaaa' },
 ];
 
 const DEMO_SCRIPTS = {

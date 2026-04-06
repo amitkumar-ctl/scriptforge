@@ -36,38 +36,39 @@ function useIsDesktop() {
 }
 
 function NavContent({ activeView, historyCount, history, activeHistoryId, onNav, onRestore }) {
-  // temporarily add this in Sidebar component
-console.log('activeHistoryId from store:', activeHistoryId);
-console.log('sessionStorage value:', sessionStorage.getItem('sf_active_history_id'));
+  console.log('activeHistoryId from store:', activeHistoryId);
+  console.log('sessionStorage value:', sessionStorage.getItem('sf_active_history_id'));
+
   return (
     <>
-      <div style={{ marginBottom: 28 }}>
-        <p style={{ padding: '0 16px', marginBottom: 8, fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#a8b0c0', fontFamily: '"DM Mono", monospace' }}>
+      {/* Navigation Section */}
+      <div className="mb-7">
+        <p className="px-4 mb-2 text-[9px] tracking-[0.15em] uppercase text-[#a8b0c0] font-['DM_Mono',monospace]">
           Navigation
         </p>
-        {navItems(historyCount).map((item) => (
-          <button
-            key={item.id}
-            onClick={() => onNav(item.id)}  /* ← was onRestore, must be onNav */
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-              padding: '9px 16px', fontSize: 12, cursor: 'pointer',
-              border: 'none',
-              borderLeft: `2px solid ${activeView === item.id && !activeHistoryId ? '#63dca3' : 'transparent'}`,
-              color: activeView === item.id && !activeHistoryId ? '#eef0f6' : '#a8b0c0',
-              background: activeView === item.id && !activeHistoryId ? 'rgba(99,220,163,0.05)' : 'transparent',
-              textAlign: 'left', fontFamily: '"DM Mono", monospace',
-              transition: 'all 0.2s',
-            }}
-          >
-            <span>{item.icon}</span>{item.label}
-          </button>
-        ))}
+        {navItems(historyCount).map((item) => {
+          const isActive = activeView === item.id && !activeHistoryId;
+          return (
+            <button
+              key={item.id}
+              onClick={() => onNav(item.id)}
+              className={[
+                'w-full flex items-center gap-2.5 px-4 py-[9px] text-xs cursor-pointer border-none text-left font-["DM_Mono",monospace] transition-all duration-200',
+                isActive
+                  ? 'border-l-2 border-[#63dca3] text-[#eef0f6] bg-[rgba(99,220,163,0.05)]'
+                  : 'border-l-2 border-transparent text-[#a8b0c0] bg-transparent',
+              ].join(' ')}
+            >
+              <span>{item.icon}</span>{item.label}
+            </button>
+          );
+        })}
       </div>
 
+      {/* Recent History Section */}
       {history.length > 0 && (
         <div>
-          <p style={{ padding: '0 16px', marginBottom: 8, fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#a8b0c0', fontFamily: '"DM Mono", monospace' }}>
+          <p className="px-4 mb-2 text-[9px] tracking-[0.15em] uppercase text-[#a8b0c0] font-['DM_Mono',monospace]">
             Recent
           </p>
           {history.slice(0, 4).map((item) => {
@@ -77,19 +78,15 @@ console.log('sessionStorage value:', sessionStorage.getItem('sf_active_history_i
               <button
                 key={item.id}
                 onClick={() => onRestore(item)}
-                style={{
-                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 16px', fontSize: 12,
-                  color: isActive ? '#eef0f6' : '#a8b0c0',
-                  background: isActive ? 'rgba(99,220,163,0.05)' : 'none',
-                  border: 'none',
-                  borderLeft: `2px solid ${isActive ? '#63dca3' : 'transparent'}`,
-                  cursor: 'pointer',
-                  textAlign: 'left', fontFamily: '"DM Mono", monospace', transition: 'all 0.2s',
-                }}
+                className={[
+                  'w-full flex items-center gap-2.5 px-4 py-2 text-xs border-none cursor-pointer text-left font-["DM_Mono",monospace] transition-all duration-200',
+                  isActive
+                    ? 'text-[#eef0f6] bg-[rgba(99,220,163,0.05)] border-l-2 border-[#63dca3]'
+                    : 'text-[#a8b0c0] bg-transparent border-l-2 border-transparent',
+                ].join(' ')}
               >
                 <span style={{ color: platform?.color }}>{platform?.icon}</span>
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 130 }}>
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap max-w-[130px]">
                   {item.config?.topic || item.topic || 'Untitled'}
                 </span>
               </button>
@@ -107,7 +104,6 @@ export default function Sidebar({ open, onClose }) {
   const location = useLocation();
   const { authFetch, user } = useAuth();
 
-  // ← all useSelectors unconditionally at top level
   const activeViewFromRedux = useSelector(selectActiveView);
   const activeHistoryId = useSelector((s) => s.ui.activeHistoryId);
   const historyCount = useSelector(selectHistoryCount);
@@ -123,17 +119,17 @@ export default function Sidebar({ open, onClose }) {
 
   const handleNav = (id) => {
     if (id === 'generator' && activeHistoryId) {
-    dispatch(clearResult());
-    dispatch(setPlatform('youtube')); // reset to default platform
-    dispatch(setConfigField({ key: 'topic',    value: '' }));
-    dispatch(setConfigField({ key: 'audience', value: '' }));
-    dispatch(setConfigField({ key: 'duration', value: '5 min' }));
-    dispatch(setConfigField({ key: 'tone',     value: 'Energetic' }));
-    dispatch(setConfigField({ key: 'hook',     value: 'Bold Claim' }));
-    dispatch(setConfigField({ key: 'language', value: 'English' }));
-    dispatch(setConfigField({ key: 'cta',      value: 'Subscribe' }));
-    dispatch(setConfigField({ key: 'notes',    value: '' }));
-  }
+      dispatch(clearResult());
+      dispatch(setPlatform('youtube'));
+      dispatch(setConfigField({ key: 'topic',    value: '' }));
+      dispatch(setConfigField({ key: 'audience', value: '' }));
+      dispatch(setConfigField({ key: 'duration', value: '5 min' }));
+      dispatch(setConfigField({ key: 'tone',     value: 'Energetic' }));
+      dispatch(setConfigField({ key: 'hook',     value: 'Bold Claim' }));
+      dispatch(setConfigField({ key: 'language', value: 'English' }));
+      dispatch(setConfigField({ key: 'cta',      value: 'Subscribe' }));
+      dispatch(setConfigField({ key: 'notes',    value: '' }));
+    }
     dispatch(setActiveView(id));
     dispatch(setActiveHistoryId(null));
     navigate(VIEW_TO_PATH[id] ?? '/');
@@ -154,20 +150,12 @@ export default function Sidebar({ open, onClose }) {
     onRestore: handleRestore,
   };
 
-  const asideStyle = {
-    width: 240,
-    background: '#0e1118',
-    borderRight: '1px solid rgba(255,255,255,0.07)',
-    overflowY: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    paddingTop: 20,
-    paddingBottom: 20,
-  };
+  // Shared aside classes
+  const asideBase = 'w-60 bg-[#0e1118] border-r border-white/[0.07] overflow-y-auto flex flex-col pt-5 pb-5';
 
   if (isDesktop) {
     return (
-      <aside style={{ ...asideStyle, flexShrink: 0 }}>
+      <aside className={`${asideBase} shrink-0`}>
         <NavContent {...sharedProps} />
       </aside>
     );
@@ -175,42 +163,39 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
+      {/* Backdrop */}
       <div
         onClick={onClose}
-        style={{
-          position: 'fixed', inset: 0, zIndex: 40,
-          background: 'rgba(0,0,0,0.6)',
-          opacity: open ? 1 : 0,
-          pointerEvents: open ? 'auto' : 'none',
-          transition: 'opacity 0.3s',
-        }}
+        className={[
+          'fixed inset-0 z-40 bg-black/60 transition-opacity duration-300',
+          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
+        ].join(' ')}
       />
-      <aside style={{
-        ...asideStyle,
-        position: 'fixed', top: 0, left: 0,
-        height: '100%', zIndex: 50,
-        transform: open ? 'translateX(0)' : 'translateX(-100%)',
-        transition: 'transform 0.3s ease-in-out',
-      }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '16px 16px 16px 10px', marginBottom: 20, marginTop: 40,
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 18 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: 6,
-              background: 'linear-gradient(135deg, #63dca3, #1a9a6a)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 14, color: '#070d0a',
-            }}>✦</div>
-            Script<span style={{ color: '#63dca3' }}>Forge</span>
+
+      {/* Drawer */}
+      <aside
+        className={[
+          asideBase,
+          'fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out',
+          open ? 'translate-x-0' : '-translate-x-full',
+        ].join(' ')}
+      >
+        {/* Mobile Header */}
+        <div className="flex items-center justify-between px-4 pl-2.5 py-4 mb-5 mt-10 border-b border-white/[0.07]">
+          <div className="flex items-center gap-2 font-['Syne',sans-serif] font-extrabold text-lg">
+            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-[#63dca3] to-[#1a9a6a] flex items-center justify-center text-sm text-[#070d0a]">
+              ✦
+            </div>
+            Script<span className="text-[#63dca3]">Forge</span>
           </div>
           <button
             onClick={onClose}
-            style={{ background: 'none', color: '#eef0f6', cursor: 'pointer', fontSize: 14, padding: '5px', lineHeight: 1 }}
-          >✕</button>
+            className="bg-transparent text-[#eef0f6] cursor-pointer text-sm p-[5px] leading-none border-none"
+          >
+            ✕
+          </button>
         </div>
+
         <NavContent {...sharedProps} />
       </aside>
     </>
