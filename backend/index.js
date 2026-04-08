@@ -1,17 +1,18 @@
 require('dotenv').config();
 const express    = require('express');
+const path = require('path');
 const cors       = require('cors');
 const helmet     = require('helmet');
 const rateLimit  = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
-const { connectDB } = require('./db/database');
-const passport   = require('./auth/passport');   // registers strategies
+const { connectDB } = require('./src/db/database');
+const passport   = require('./src/auth/passport');   // registers strategies
 
-const scriptRoutes = require('./routes/script');
-const authRoutes   = require('./routes/auth');
-const healthRoutes = require('./routes/health');
-const errorHandler = require('./middleware/errorHandler');
-const contactRoutes = require('./routes/contact');
+const scriptRoutes = require('./src/routes/script');
+const authRoutes   = require('./src/routes/auth');
+const healthRoutes = require('./src/routes/health');
+const errorHandler = require('./src/middleware/errorHandler');
+const contactRoutes = require('./src/routes/contact');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -47,6 +48,11 @@ const genLimiter = rateLimit({ windowMs: 60_000, max: 5,  standardHeaders: true,
 
 app.use('/api/', apiLimiter);
 app.use('/api/script/generate', genLimiter);
+
+// Serve the privacy page
+app.get('/privacy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
+});
 
 // ─── Routes ───────────────────────────────────────────────────────────
 app.use('/api/health', healthRoutes);
