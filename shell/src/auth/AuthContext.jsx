@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import config from '../config';
-const API = config.API_URL || 'http://localhost:4000';
 
 const RT_KEY = 'sf_rt';
 
@@ -49,7 +47,7 @@ export function AuthProvider({ children }) {
     const rt = RT.load();
     if (!rt) { clearSession(); return false; }
     try {
-      const res = await fetch(`${API}/api/auth/refresh`, {
+      const res = await fetch(`${__API_BASE_URL__}/api/auth/refresh`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ refreshToken: rt }),
@@ -102,7 +100,7 @@ useEffect(() => {
 const logout = useCallback(async () => {
   const rt = RT.load();
   try {
-    await fetch(`${API}/api/auth/logout`, {
+    await fetch(`${__API_BASE_URL__}/api/auth/logout`, {
       method:  'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -122,7 +120,7 @@ const logout = useCallback(async () => {
 }, [clearSession]);
 
   const authFetch = useCallback(async (url, options = {}) => {
-    const fullUrl = url.startsWith('http') ? url : `${API}${url}`;
+    const fullUrl = url.startsWith('http') ? url : `${__API_BASE_URL__}${url}`;
     const doFetch = (token) => fetch(fullUrl, {
       ...options,
       headers: {

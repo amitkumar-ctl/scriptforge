@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import config from '../../config';
-const API_BASE = config.API_URL ||'http://localhost:4000';
 
 
 const providers = [
@@ -39,7 +37,7 @@ export default function LoginPage({ error }) {
   }, [user]);
 
   const handleLogin = (provider) => {
-    window.location.href = `${API_BASE}/api/auth/${provider}`;
+    window.location.href = `${__API_BASE_URL__}/api/auth/${provider}`;
   };
 
   return (

@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import config from '../../config';
 
-const API_BASE = 'https://api.scriptforgehub.com' || 'http://localhost:4000';
+const API_BASE = __API_BASE_URL__;
 
 const PLATFORMS = [
   { id: 'youtube',   label: 'YouTube',     icon: '▶', color: '#ff4545' },
