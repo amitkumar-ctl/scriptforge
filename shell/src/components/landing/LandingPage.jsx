@@ -3,7 +3,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import config from '../../config';
 
-const API_BASE = config.API_URL || 'http://localhost:4000';
+const API_BASE = 'https://api.scriptforgehub.com' || 'http://localhost:4000';
 
 const PLATFORMS = [
   { id: 'youtube',   label: 'YouTube',     icon: '▶', color: '#ff4545' },
@@ -508,6 +508,7 @@ export default function LandingPage() {
           {['Features', 'Demo', 'Pricing', 'Contact'].map(item => (
             <a key={item} href={`#${item.toLowerCase()}`} className="text-xs text-muted hover:text-text no-underline transition-colors">{item}</a>
           ))}
+          <a href="https://api.scriptforgehub.com/privacy" target="_blank" className="text-xs text-muted hover:text-text no-underline transition-colors">Privacy Policy</a>
         </div>
       </footer>
 
