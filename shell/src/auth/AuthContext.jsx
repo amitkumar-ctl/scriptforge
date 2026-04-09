@@ -63,19 +63,26 @@ export function AuthProvider({ children }) {
   }, [applyTokens, clearSession]);
 
   const handleCallback = useCallback((hash) => {
-    try {
-      const p  = new URLSearchParams(hash.replace(/^#/, ''));
-      const at = p.get('access');
-      const rt = p.get('refresh');
-      if (!at || !rt) return false;
-      const payload = JSON.parse(atob(at.split('.')[1]));
-      applyTokens(at, rt, {
-        id: payload.sub, name: payload.name, email: payload.email, avatar: payload.avatar,
-      });
-      window.history.replaceState(null, '', window.location.pathname);
-      return true;
-    } catch { return false; }
-  }, [applyTokens]);
+  try {
+    const p  = new URLSearchParams(hash.replace(/^#/, ''));
+    const at = p.get('access');
+    const rt = p.get('refresh');
+    if (!at || !rt) return false;
+
+    // ✅ Safe base64 decode that handles URL-safe chars
+    const base64 = at.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
+
+    applyTokens(at, rt, {
+      id: payload.sub, name: payload.name, email: payload.email, avatar: payload.avatar,
+    });
+    window.history.replaceState(null, '', window.location.pathname);
+    return true;
+  } catch(e) { 
+    console.error('[Auth] handleCallback error:', e); // ← add this to see exact error
+    return false; 
+  }
+}, [applyTokens]);
 
 useEffect(() => {
   const hash = window.location.hash;

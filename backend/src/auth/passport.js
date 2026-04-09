@@ -43,9 +43,9 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
       callbackURL: `${BASE_URL}/api/auth/github/callback`,
       scope: ['user:email'],
     },
-    (accessToken, refreshToken, profile, done) => {
+  async  (accessToken, refreshToken, profile, done) => {
       try {
-        const user = findOrCreateUser({
+        const user = await findOrCreateUser({
           provider: 'github',
           providerId: String(profile.id),
           email: profile.emails?.[0]?.value || null,
