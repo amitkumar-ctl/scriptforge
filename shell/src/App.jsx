@@ -15,6 +15,7 @@ import LandingPage  from './components/landing/LandingPage';
 import GeneratorView  from './components/views/GeneratorView';
 import HistoryView    from './components/views/HistoryView';
 import TemplatesView  from './components/views/TemplatesView';
+import SupportWidget from './components/support/SupportWidget';
 
 function LoadingScreen() {
   return (
@@ -61,6 +62,7 @@ function AppShell() {
         </main>
       </div>
       <Notification />
+      <SupportWidget />
     </div>
   );
 }
