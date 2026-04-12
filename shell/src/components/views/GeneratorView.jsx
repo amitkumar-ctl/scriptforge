@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '../../auth/AuthContext';
 import {
@@ -7,6 +7,7 @@ import {
 } from '../../store/slices/scriptSlice';
 import { showNotification } from '../../store/slices/uiSlice';
 import { Helmet } from 'react-helmet';
+import PricingModal from '../billing/PricingModal';
 
 const PlatformSelectorMFE = lazy(() => import('mfePlatform/PlatformSelector'));
 const ScriptConfigMFE = lazy(() => import('mfeConfig/ScriptConfig'));
@@ -28,6 +29,7 @@ export default function GeneratorView() {
   const status = useSelector(selectStatus);
   const error = useSelector(selectError);
   const loading = status === 'loading';
+  const [showPricing, setShowPricing] = useState(false);
 
   const handleGenerate = async () => {
     if (!config.topic.trim()) {
@@ -37,7 +39,14 @@ export default function GeneratorView() {
     // Pass authFetch so the thunk uses the in-memory token
     const result = await dispatch(generateScript({ platform, config, authFetch }));
     if (generateScript.rejected.match(result)) {
-      dispatch(showNotification({ type: 'error', message: result.payload || 'Generation failed' }));
+      if (generateScript.rejected.match(result)) {
+        const payload = result.payload || '';
+        if (typeof payload === 'string' && (payload.includes('limit') || payload.includes('Upgrade'))) {
+          setShowPricing(true);
+        } else {
+          dispatch(showNotification({ type: 'error', message: payload || 'Generation failed' }));
+        }
+      }
     } else {
       dispatch(showNotification({ type: 'success', message: 'Script generated!' }));
     }
@@ -45,6 +54,7 @@ export default function GeneratorView() {
 
   return (
     <>
+    {showPricing && <PricingModal reason="limit" onClose={() => setShowPricing(false)} />}
       <Helmet>
         <title>
           {platform

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import UserMenu from './auth/UserMenu';
+import PlanBadge from './billing/PlanBadge';
+import { useAuth } from '../auth/AuthContext';
 
 function useIsDesktop() {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -13,6 +15,7 @@ function useIsDesktop() {
 
 export default function Topbar({ onMenuClick }) {
   const isDesktop = useIsDesktop();
+  const { user } = useAuth();
 
   return (
     <header style={{
@@ -52,6 +55,7 @@ export default function Topbar({ onMenuClick }) {
       )}
 
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+        {user && <PlanBadge />}
         <UserMenu />
       </div>
     </header>

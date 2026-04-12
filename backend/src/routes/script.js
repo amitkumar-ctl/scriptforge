@@ -4,6 +4,30 @@ const { generateScript } = require('../services/anthropicService');
 const validateScript = require('../middleware/validateScript');
 const requireAuth = require('../middleware/requireAuth');
 const Script = require('../db/models/Script');
+const Subscription = require('../db/models/Subscription');
+
+
+const FREE_LIMIT = 5;
+
+async function checkPlanLimit(userId) {
+  const sub = await Subscription.findOne({ userId });
+  const isPro = sub && sub.plan === 'pro' && sub.status === 'active';
+  if (isPro) return { allowed: true, isPro: true };
+
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const count = await Script.countDocuments({ userId, createdAt: { $gte: startOfMonth } });
+
+  if (count >= FREE_LIMIT) {
+    return {
+      allowed: false, isPro: false, count, limit: FREE_LIMIT,
+      error: `Free plan limit reached (${FREE_LIMIT} scripts/month). Upgrade to Pro for unlimited scripts.`,
+    };
+  }
+  return { allowed: true, isPro: false, count, limit: FREE_LIMIT };
+}
 
 // POST /api/script/generate
 router.post('/generate', requireAuth, validateScript, async (req, res, next) => {
@@ -12,6 +36,16 @@ router.post('/generate', requireAuth, validateScript, async (req, res, next) => 
     const userId = req.user.id;
 
     console.log(`[Script] user="${userId}" platform="${platform}" topic="${config.topic}"`);
+    const planCheck = await checkPlanLimit(userId);
+    if (!planCheck.allowed) {
+      return res.status(403).json({
+        error: planCheck.error,
+        code: 'PLAN_LIMIT_REACHED',
+        count: planCheck.count,
+        limit: planCheck.limit,
+        upgradeUrl: '/pricing',
+      });
+    }
 
     const result = await generateScript({ platform, config });
 
@@ -22,12 +56,18 @@ router.post('/generate', requireAuth, validateScript, async (req, res, next) => 
       config,
       result,
     });
-
     res.json({
       success: true,
       data: result,
-      meta: { scriptId: script._id, platform, generatedAt: script.createdAt },
+      meta: {
+        scriptId: script._id,
+        platform,
+        generatedAt: script.createdAt,
+        plan: planCheck.isPro ? 'pro' : 'free',
+        usage: planCheck.isPro ? null : { count: planCheck.count + 1, limit: planCheck.limit },
+      },
     });
+
   } catch (err) { next(err); }
 });
 
