@@ -13,6 +13,7 @@ const authRoutes   = require('./src/routes/auth');
 const healthRoutes = require('./src/routes/health');
 const errorHandler = require('./src/middleware/errorHandler');
 const contactRoutes = require('./src/routes/contact');
+const supportRoutes = require('./src/routes/support');
 
 const app  = express();
 const PORT = process.env.PORT || 4000;
@@ -59,6 +60,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth',   authRoutes);
 app.use('/api/script', scriptRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/support', supportRoutes);
 
 // ─── Error handler ────────────────────────────────────────────────────
 app.use(errorHandler);
