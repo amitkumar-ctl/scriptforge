@@ -493,7 +493,7 @@ export default function LandingPage() {
           <div className="inline-flex items-center gap-1 p-1 rounded-full border border-white/10 bg-surface mb-10">
             {[
               { id: 'monthly', label: 'Monthly' },
-              { id: 'yearly',  label: 'Annual  · save 20%' },
+              { id: 'yearly',  label: 'Annual  · save 30%' },
             ].map(period => (
               <button
                 key={period.id}
@@ -537,10 +537,10 @@ export default function LandingPage() {
               </div>
               <div className="font-syne font-extrabold text-lg mb-2">Pro</div>
               <div className="font-syne font-extrabold text-3xl mb-1" style={{ color: '#63dca3' }}>
-                {billingPeriod === 'monthly' ? '$9' : '$79'}
+                {billingPeriod === 'monthly' ? '$3.23' : '$26.87'}
               </div>
               <div className="text-xs text-muted mb-6">
-                {billingPeriod === 'monthly' ? 'per month' : 'per year · ~$6.58/mo'}
+                {billingPeriod === 'monthly' ? 'per month' : 'per year · ~$1/mo'}
               </div>
               <div className="h-px bg-white/5 my-4" />
               <div className="flex flex-col gap-2.5 mb-7">

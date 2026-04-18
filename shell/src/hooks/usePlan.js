@@ -9,8 +9,7 @@ export function usePlan() {
   useEffect(() => {
     if (!user) { setLoading(false); return; }
     authFetch('/api/billing/plan')
-      .then(r => r.json())
-      .then(data => setPlan(data.plan))
+      .then(r => setPlan(r.data.plan)) // ✅ no .json()
       .catch(() => setPlan('free'))
       .finally(() => setLoading(false));
   }, [user]);

@@ -8,6 +8,7 @@ import {
 import { showNotification } from '../../store/slices/uiSlice';
 import { Helmet } from 'react-helmet';
 import PricingModal from '../billing/PricingModal';
+import { usePlan } from '../../hooks/usePlan';
 
 const PlatformSelectorMFE = lazy(() => import('mfePlatform/PlatformSelector'));
 const ScriptConfigMFE = lazy(() => import('mfeConfig/ScriptConfig'));
@@ -28,6 +29,7 @@ export default function GeneratorView() {
   const config = useSelector(selectConfig);
   const status = useSelector(selectStatus);
   const error = useSelector(selectError);
+  const {isPro} = usePlan()
   const loading = status === 'loading';
   const [showPricing, setShowPricing] = useState(false);
 
@@ -108,7 +110,7 @@ export default function GeneratorView() {
         </div>
 
         <Suspense fallback={<MFEFallback label="Output Viewer" />}>
-          <OutputViewerMFE platform={platform} authFetch={authFetch} config={config} />
+          <OutputViewerMFE platform={platform} authFetch={authFetch} config={config} isPro={isPro} onUpgrade={() => setShowPricing(true)}/>
         </Suspense>
       </div>
     </>

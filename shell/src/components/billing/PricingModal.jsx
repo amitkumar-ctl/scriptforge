@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import { createPortal } from 'react-dom';
 
 const PRO_FEATURES = [
   'Unlimited scripts',
@@ -10,107 +11,193 @@ const PRO_FEATURES = [
   'Priority generation',
 ];
 
+function loadRazorpayScript() {
+  return new Promise((resolve) => {
+    if (window.Razorpay) { resolve(true); return; }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function PricingModal({ onClose, reason }) {
-  const { authFetch }              = useAuth();
-  const [period,  setPeriod]       = useState('monthly');
-  const [loading, setLoading]      = useState(false);
-  const [error,   setError]        = useState(null);
+  const { authFetch, user } = useAuth();
+  const [period, setPeriod] = useState('monthly');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const prices = {
-    monthly: { amount: '$9',  per: '/month' },
-    yearly:  { amount: '$79', per: '/year'  },
+    monthly: { amount: '₹300', per: '/month' },
+    yearly: { amount: '₹3000', per: '/year' },
   };
 
   const handleUpgrade = async () => {
-    setLoading(true); setError(null);
+    setLoading(true);
+    setError(null);
     try {
-      const res  = await authFetch('/api/billing/checkout', {
+      const loaded = await loadRazorpayScript();
+      if (!loaded) throw new Error('Failed to load Razorpay checkout. Check your internet connection.');
+
+      // ✅ authFetch now returns axios response — use .data directly, no .json()
+      const res = await authFetch('/api/billing/checkout', {
         method: 'POST',
         body: JSON.stringify({ period }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to create checkout');
-      window.location.href = data.checkoutUrl;
+
+      const { subscriptionId, razorpayKeyId } = res.data;
+
+      const options = {
+        key: razorpayKeyId,
+        subscription_id: subscriptionId,
+        name: 'ScriptForge',
+        description: `ScriptForge Pro – ${period === 'yearly' ? 'Yearly' : 'Monthly'} Plan`,
+        image: '/android-chrome-192x192.png',
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+        },
+        theme: { color: '#63dca3' },
+        handler: async function (response) {
+          try {
+            const res = await authFetch('/api/billing/verify', {
+              method: 'POST',
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_signature: response.razorpay_signature,
+                period,
+              }),
+            });
+
+            if (res.data.success) {
+              window.location.href = `${window.location.origin}/app?upgraded=true`;
+            } else {
+              setError('Payment verification failed. Please contact support.');
+              setLoading(false);
+            }
+          } catch (err) {
+            setError(err.response?.data?.error || 'Verification failed. Please contact support.');
+            setLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setLoading(false);
+          },
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        setError(`Payment failed: ${response.error.description}`);
+        setLoading(false);
+      });
+      rzp.open();
+
     } catch (err) {
-      setError(err.message);
+      // Axios errors keep the server message in err.response.data.error
+      const message = err.response?.data?.error || err.message || 'Something went wrong';
+      setError(message);
       setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', padding: 16 }}
-      onClick={onClose}
-    >
+    createPortal(
       <div
-        onClick={e => e.stopPropagation()}
-        style={{ background: '#0e1118', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 20, padding: 32, width: '100%', maxWidth: 420, position: 'relative' }}
+        onClick={onClose}
+        className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 backdrop-blur-md p-4"
       >
-        <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', color: '#666e85', cursor: 'pointer', fontSize: 18 }}>✕</button>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="relative w-full max-w-[420px] rounded-2xl border border-white/10 bg-[#0e1118] p-8"
+        >
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 text-lg text-[#666e85] hover:text-white"
+          >
+            ✕
+          </button>
 
-        <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          {reason === 'limit' && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 20, marginBottom: 12, background: 'rgba(224,91,91,0.1)', border: '1px solid rgba(224,91,91,0.3)', fontSize: 11, color: '#e05b5b', fontFamily: '"DM Mono", monospace' }}>
-              ⚠ Free plan limit reached
-            </div>
+          <div className="mb-6 text-center">
+            {reason === 'limit' && (
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border border-red-400/30 bg-red-400/10 px-3 py-1 text-[11px] font-mono text-red-400">
+                ⚠ Free plan limit reached
+              </div>
+            )}
+            <h2 className="mb-1 text-[22px] font-extrabold font-sans">
+              Upgrade to <span className="text-[#63dca3]">Pro</span>
+            </h2>
+            <p className="text-[12px] text-[#666e85] font-mono">
+              Unlimited scripts. Every platform. Always.
+            </p>
+          </div>
+
+          <div className="mb-5 flex gap-1 rounded-lg bg-[#141720] p-1">
+            {['monthly', 'yearly'].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                className={`flex flex-1 items-center justify-center gap-1.5 rounded-md py-2 text-xs font-mono transition-all
+                ${period === p
+                    ? 'bg-[#0e1118] text-[#eef0f6]'
+                    : 'text-[#666e85] hover:text-white'
+                  }`}
+              >
+                {p.charAt(0).toUpperCase() + p.slice(1)}
+                {p === 'yearly' && (
+                  <span className="rounded-full border border-[#63dca3]/30 bg-[#63dca3]/10 px-1.5 text-[9px] text-[#63dca3]">
+                    Save 27%
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <div className="mb-5 text-center">
+            <span className="text-4xl font-extrabold text-[#63dca3]">
+              {prices[period].amount}
+            </span>
+            <span className="ml-1 text-[13px] text-[#666e85] font-mono">
+              {prices[period].per}
+            </span>
+          </div>
+
+          <div className="mb-6 space-y-2">
+            {PRO_FEATURES.map((f) => (
+              <div key={f} className="flex items-center gap-2 text-[13px] text-[#eef0f6] font-mono">
+                <span className="text-[#63dca3] text-xs">✓</span>
+                {f}
+              </div>
+            ))}
+          </div>
+
+          {error && (
+            <p className="mb-3 text-center text-[11px] text-red-400 font-mono">{error}</p>
           )}
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 22, marginBottom: 6 }}>
-            Upgrade to <span style={{ color: '#63dca3' }}>Pro</span>
-          </h2>
-          <p style={{ fontSize: 12, color: '#666e85', fontFamily: '"DM Mono", monospace' }}>
-            Unlimited scripts. Every platform. Always.
+
+          <button
+            onClick={handleUpgrade}
+            disabled={loading}
+            className={`w-full rounded-lg py-3.5 text-[15px] font-bold transition-all
+            ${loading
+                ? 'bg-[#0a3d24] text-[#63dca3] cursor-not-allowed'
+                : 'bg-gradient-to-br from-[#63dca3] to-[#1a9a6a] text-[#070d0a] hover:opacity-90'
+              }`}
+          >
+            {loading
+              ? 'Opening checkout…'
+              : `Upgrade to Pro (${period === 'yearly' ? 'Yearly' : 'Monthly'})`}
+          </button>
+
+          <p className="mt-3 text-center text-[10px] text-[#666e85] font-mono">
+            Powered by Razorpay · Cancel anytime · Secure payment
           </p>
         </div>
-
-        {/* Period toggle */}
-        <div style={{ display: 'flex', background: '#141720', borderRadius: 10, padding: 4, marginBottom: 20, gap: 4 }}>
-          {['monthly', 'yearly'].map(p => (
-            <button key={p} onClick={() => setPeriod(p)} style={{
-              flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
-              fontSize: 12, fontFamily: '"DM Mono", monospace',
-              background: period === p ? '#0e1118' : 'transparent',
-              color: period === p ? '#eef0f6' : '#666e85',
-              transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-            }}>
-              {p.charAt(0).toUpperCase() + p.slice(1)}
-              {p === 'yearly' && <span style={{ fontSize: 9, padding: '1px 6px', borderRadius: 10, background: 'rgba(99,220,163,0.15)', color: '#63dca3', border: '1px solid rgba(99,220,163,0.3)' }}>Save 27%</span>}
-            </button>
-          ))}
-        </div>
-
-        {/* Price */}
-        <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 800, fontSize: 40, color: '#63dca3' }}>{prices[period].amount}</span>
-          <span style={{ fontSize: 13, color: '#666e85', fontFamily: '"DM Mono", monospace' }}>{prices[period].per}</span>
-        </div>
-
-        {/* Features */}
-        <div style={{ marginBottom: 24 }}>
-          {PRO_FEATURES.map(f => (
-            <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', fontSize: 13, color: '#eef0f6', fontFamily: '"DM Mono", monospace' }}>
-              <span style={{ color: '#63dca3', fontSize: 12 }}>✓</span>{f}
-            </div>
-          ))}
-        </div>
-
-        {error && <p style={{ color: '#e05b5b', fontSize: 11, fontFamily: '"DM Mono", monospace', textAlign: 'center', marginBottom: 12 }}>{error}</p>}
-
-        <button onClick={handleUpgrade} disabled={loading} style={{
-          width: '100%', padding: '14px 0',
-          background: loading ? '#0a3d24' : 'linear-gradient(135deg, #63dca3, #1a9a6a)',
-          border: 'none', borderRadius: 10,
-          color: loading ? '#63dca3' : '#070d0a',
-          fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 15,
-          cursor: loading ? 'not-allowed' : 'pointer', transition: 'all 0.2s',
-        }}>
-          {loading ? 'Redirecting to checkout…' : `Upgrade to Pro (${period === 'yearly' ? 'Yearly' : 'Monthly'})`}
-        </button>
-
-        <p style={{ textAlign: 'center', fontSize: 10, color: '#666e85', fontFamily: '"DM Mono", monospace', marginTop: 12 }}>
-          Powered by LemonSqueezy · Cancel anytime · Secure payment
-        </p>
-      </div>
-    </div>
+      </div>,
+      document.body
+    )
   );
 }

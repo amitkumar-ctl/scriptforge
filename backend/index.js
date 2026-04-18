@@ -8,20 +8,18 @@ const cookieParser = require('cookie-parser');
 const { connectDB } = require('./src/db/database');
 const passport = require('./src/auth/passport');   // registers strategies
 
-const scriptRoutes = require('./src/routes/script');
-const authRoutes = require('./src/routes/auth');
-const healthRoutes = require('./src/routes/health');
-const errorHandler = require('./src/middleware/errorHandler');
+const scriptRoutes  = require('./src/routes/script');
+const authRoutes    = require('./src/routes/auth');
+const healthRoutes  = require('./src/routes/health');
+const errorHandler  = require('./src/middleware/errorHandler');
 const contactRoutes = require('./src/routes/contact');
 const billingRoutes = require('./src/routes/billing');
 const webhookRoutes = require('./src/routes/webhook');
 
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 4000;
 
 app.set('trust proxy', 1);
-
-`shell/public/_redirects`
 
 // ─── Security ─────────────────────────────────────────────────────────
 app.use(helmet({
@@ -34,9 +32,10 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error(`CORS blocked: ${origin}`));
   },
-  credentials: true,   // required for cookies
+  credentials: true,
 }));
 
+// ─── Raw body for Razorpay webhook signature verification ─────────────
 app.use('/api/webhooks', express.raw({ type: 'application/json' }), (req, res, next) => {
   req.rawBody = req.body.toString('utf8');
   try { req.body = JSON.parse(req.rawBody); } catch { req.body = {}; }
@@ -64,10 +63,10 @@ app.get('/privacy', (req, res) => {
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────
-app.use('/api/health', healthRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/script', scriptRoutes);
-app.use('/api/contact', contactRoutes);
+app.use('/api/health',   healthRoutes);
+app.use('/api/auth',     authRoutes);
+app.use('/api/script',   scriptRoutes);
+app.use('/api/contact',  contactRoutes);
 app.use('/api/billing',  billingRoutes);
 app.use('/api/webhooks', webhookRoutes);
 
@@ -75,15 +74,14 @@ app.use('/api/webhooks', webhookRoutes);
 app.use(errorHandler);
 app.use((req, res) => res.status(404).json({ error: `${req.method} ${req.path} not found` }));
 
-
-
 connectDB()
   .then(() => {
     app.listen(PORT, () => {
       console.log(`\n🚀 ScriptForge Backend → http://localhost:${PORT}`);
-      console.log(`🔑 API Key:  ${process.env.ANTHROPIC_API_KEY ? '✅' : '❌ Missing'}`);
-      console.log(`🔐 Google:   ${process.env.GOOGLE_CLIENT_ID ? '✅' : '⚠️  Not configured'}`);
-      console.log(`🐙 GitHub:   ${process.env.GITHUB_CLIENT_ID ? '✅' : '⚠️  Not configured'}`);
+      console.log(`🔑 Anthropic:  ${process.env.ANTHROPIC_API_KEY    ? '✅' : '❌ Missing'}`);
+      console.log(`💳 Razorpay:   ${process.env.RAZORPAY_KEY_ID      ? '✅' : '❌ Missing'}`);
+      console.log(`🔐 Google:     ${process.env.GOOGLE_CLIENT_ID     ? '✅' : '⚠️  Not configured'}`);
+      console.log(`🐙 GitHub:     ${process.env.GITHUB_CLIENT_ID     ? '✅' : '⚠️  Not configured'}`);
     });
   })
   .catch((err) => {

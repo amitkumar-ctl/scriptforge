@@ -1,7 +1,8 @@
-const express      = require('express');
-const router       = express.Router();
-const requireAuth  = require('../middleware/requireAuth');
-const { createCheckout, cancelSubscription, getVariantId } = require('../services/lemonSequeezyService');
+const express     = require('express');
+const router      = express.Router();
+const crypto      = require('crypto');
+const requireAuth = require('../middleware/requireAuth');
+const { createSubscription, cancelSubscription } = require('../services/razorpayService');
 const Subscription = require('../db/models/Subscription');
 const User         = require('../db/models/User');
 
@@ -33,16 +34,83 @@ router.post('/checkout', requireAuth, async (req, res, next) => {
     if (!['monthly', 'yearly'].includes(period)) {
       return res.status(400).json({ error: 'Invalid period. Use monthly or yearly.' });
     }
-    const user      = await User.findById(req.user.id).lean();
-    const variantId = getVariantId(period);
-    const checkoutUrl = await createCheckout({
-      variantId,
-      userId:     String(req.user.id),
-      email:      user.email || '',
-      name:       user.name  || '',
-      successUrl: `${CLIENT_URL}/app?upgraded=true`,
+
+    const user = await User.findById(req.user.id).lean();
+
+    const subscription = await createSubscription({
+      period,
+      userId: String(req.user.id),
+      email:  user.email || '',
+      name:   user.name  || '',
     });
-    res.json({ checkoutUrl });
+
+    res.json({
+      subscriptionId: subscription.id,
+      razorpayKeyId:  process.env.RAZORPAY_KEY_ID,
+      checkoutUrl:    subscription.short_url || null,
+      period,
+    });
+  } catch (err) { next(err); }
+});
+
+// POST /api/billing/verify
+// Called from frontend immediately after Razorpay payment success
+// Verifies signature and activates subscription in DB without needing webhooks
+router.post('/verify', requireAuth, async (req, res, next) => {
+  try {
+    const {
+      razorpay_payment_id,
+      razorpay_subscription_id,
+      razorpay_signature,
+      period,
+    } = req.body;
+
+    if (!razorpay_payment_id || !razorpay_subscription_id || !razorpay_signature) {
+      return res.status(400).json({ success: false, error: 'Missing payment fields' });
+    }
+
+    // 1. Verify Razorpay signature
+    const body     = razorpay_payment_id + '|' + razorpay_subscription_id;
+    const expected = crypto
+      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+      .update(body)
+      .digest('hex');
+
+    const isValid = (() => {
+      try {
+        return crypto.timingSafeEqual(
+          Buffer.from(expected),
+          Buffer.from(razorpay_signature)
+        );
+      } catch {
+        return false;
+      }
+    })();
+
+    if (!isValid) {
+      return res.status(400).json({ success: false, error: 'Invalid payment signature' });
+    }
+
+    // 2. Activate subscription in DB
+    const periodDays = period === 'yearly' ? 365 : 30;
+    await Subscription.findOneAndUpdate(
+      { userId: req.user.id },
+      {
+        $set: {
+          userId:           req.user.id,
+          plan:             'pro',
+          status:           'active',
+          billingPeriod:    period || 'monthly',
+          rzSubscriptionId: razorpay_subscription_id,
+          currentPeriodEnd: new Date(Date.now() + periodDays * 24 * 60 * 60 * 1000),
+          cancelledAt:      null,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log(`[Billing] Subscription activated for user ${req.user.id} — ${period}`);
+    res.json({ success: true });
   } catch (err) { next(err); }
 });
 
@@ -50,10 +118,10 @@ router.post('/checkout', requireAuth, async (req, res, next) => {
 router.post('/cancel', requireAuth, async (req, res, next) => {
   try {
     const sub = await Subscription.findOne({ userId: req.user.id });
-    if (!sub || !sub.lsSubscriptionId) {
+    if (!sub || !sub.rzSubscriptionId) {
       return res.status(400).json({ error: 'No active subscription found' });
     }
-    await cancelSubscription(sub.lsSubscriptionId);
+    await cancelSubscription(sub.rzSubscriptionId, true);
     sub.cancelledAt = new Date();
     sub.status      = 'cancelled';
     await sub.save();
