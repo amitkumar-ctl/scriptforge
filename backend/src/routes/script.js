@@ -32,7 +32,13 @@ async function checkPlanLimit(userId) {
 // ── helper: get plan for a user ───────────────────────────────────────
 async function getUserPlan(userId) {
   const sub = await Subscription.findOne({ userId });
-  const isPro = sub && sub.plan === 'pro' && sub.status === 'active';
+
+  const isPro = sub &&
+    sub.plan === 'pro' &&
+    sub.status === 'active' &&
+    // ✅ make sure period hasn't expired
+    (!sub.currentPeriodEnd || sub.currentPeriodEnd > new Date());
+
   return { isPro, sub };
 }
 

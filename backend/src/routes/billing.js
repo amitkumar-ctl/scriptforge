@@ -12,9 +12,26 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:4001';
 router.get('/plan', requireAuth, async (req, res, next) => {
   try {
     const sub = await Subscription.findOne({ userId: req.user.id });
+
+    // ── No subscription or free plan ──────────────────────────────
     if (!sub || sub.plan === 'free') {
       return res.json({ plan: 'free', status: 'inactive', limits: { scriptsPerMonth: 5 } });
     }
+
+    // ── Check if Pro period has actually expired ───────────────────
+    const now = new Date();
+    const periodExpired = sub.currentPeriodEnd && sub.currentPeriodEnd < now;
+
+    if (periodExpired && sub.status !== 'active') {
+      // Period ended and not renewed — treat as free
+      // Optionally update DB to reflect this
+      await Subscription.findOneAndUpdate(
+        { userId: req.user.id },
+        { $set: { plan: 'free', status: 'expired' } }
+      );
+      return res.json({ plan: 'free', status: 'expired', limits: { scriptsPerMonth: 5 } });
+    }
+
     res.json({
       plan:             sub.plan,
       billingPeriod:    sub.billingPeriod,
