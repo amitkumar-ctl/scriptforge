@@ -2,32 +2,32 @@ import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import './styles.css';
 
-const selectResult         = (s) => s.script.result;
-const selectStatus         = (s) => s.script.status;
-const selectActiveTab      = (s) => s.script.activeTab;
-const selectScriptId       = (s) => s.script.scriptId;
-const selectDirectorsCut   = (s) => s.directors?.result;
-const selectDirectorsStatus= (s) => s.directors?.status;
-const setActiveTab         = (tab) => ({ type: 'script/setActiveTab', payload: tab });
+const selectResult = (s) => s.script.result;
+const selectStatus = (s) => s.script.status;
+const selectActiveTab = (s) => s.script.activeTab;
+const selectScriptId = (s) => s.script.scriptId;
+const selectDirectorsCut = (s) => s.directors?.result;
+const selectDirectorsStatus = (s) => s.directors?.status;
+const setActiveTab = (tab) => ({ type: 'script/setActiveTab', payload: tab });
 
 const PLATFORMS = [
-  { id: 'youtube',   icon: '▶', color: '#ff4545' },
+  { id: 'youtube', icon: '▶', color: '#ff4545' },
   { id: 'instagram', icon: '◈', color: '#e040fb' },
-  { id: 'tiktok',    icon: '♪', color: '#00f5d4' },
-  { id: 'linkedin',  icon: '⬡', color: '#4fa3e0' },
-  { id: 'podcast',   icon: '⊚', color: '#f0a04b' },
-  { id: 'twitter',   icon: '✕', color: '#5bc8e0' },
-  { id: 'custom',    icon: '⊕', color: '#aaa' },
+  { id: 'tiktok', icon: '♪', color: '#00f5d4' },
+  { id: 'linkedin', icon: '⬡', color: '#4fa3e0' },
+  { id: 'podcast', icon: '⊚', color: '#f0a04b' },
+  { id: 'twitter', icon: '✕', color: '#5bc8e0' },
+  { id: 'custom', icon: '⊕', color: '#aaa' },
 ];
 
 const TABS = ['script', 'hooks', 'hashtags', 'brief'];
 
 const SECTION_STYLES = {
-  'HOOK':         { color: '#ff4545', emoji: '🪝', label: 'Hook' },
-  'INTRO':        { color: '#63dca3', emoji: '👋', label: 'Intro' },
+  'HOOK': { color: '#ff4545', emoji: '🪝', label: 'Hook' },
+  'INTRO': { color: '#63dca3', emoji: '👋', label: 'Intro' },
   'MAIN CONTENT': { color: '#4fa3e0', emoji: '📖', label: 'Main Content' },
-  'CTA':          { color: '#f0a04b', emoji: '🎯', label: 'Call to Action' },
-  'OUTRO':        { color: '#e040fb', emoji: '🎬', label: 'Outro' },
+  'CTA': { color: '#f0a04b', emoji: '🎯', label: 'Call to Action' },
+  'OUTRO': { color: '#e040fb', emoji: '🎬', label: 'Outro' },
 };
 
 function ScriptRenderer({ text, directorsCut }) {
@@ -37,7 +37,7 @@ function ScriptRenderer({ text, directorsCut }) {
   const sections = [];
   if (parts[0].trim()) sections.push({ label: null, content: parts[0].trim() });
   for (let i = 1; i < parts.length; i += 2) {
-    const label   = parts[i];
+    const label = parts[i];
     const content = (parts[i + 1] || '').trim();
     if (content) sections.push({ label, content });
   }
@@ -74,7 +74,7 @@ function ScriptRenderer({ text, directorsCut }) {
               className="rounded-xl overflow-hidden border"
               style={{
                 borderColor: style ? style.color + '40' : 'rgba(255,255,255,0.07)',
-                background:  style ? style.color + '08' : 'transparent',
+                background: style ? style.color + '08' : 'transparent',
               }}
             >
               {style && (
@@ -262,9 +262,9 @@ function DirectorsCutRenderer({ data }) {
             <div key={i} className={`pb-4 mb-4 ${i < data.scenes.length - 1 ? 'border-b border-white/5' : ''}`}>
               <div className="text-xs font-mono uppercase tracking-widest mb-2" style={{ color: '#4fa3e0' }}>{scene.section}</div>
               {[
-                { label: '🎭 Acting',  value: scene.acting },
-                { label: '📷 Camera',  value: scene.camera },
-                { label: '⚡ Energy',  value: scene.energy },
+                { label: '🎭 Acting', value: scene.acting },
+                { label: '📷 Camera', value: scene.camera },
+                { label: '⚡ Energy', value: scene.energy },
                 { label: '🎞️ B-Roll', value: scene.bRoll },
               ].map(({ label, value }) => value && (
                 <div key={label} className="flex gap-2 mb-1.5">
@@ -307,10 +307,10 @@ function DirectorsCutRenderer({ data }) {
       {data.editing && (
         <Section color="#e040fb" title="✂️ Editing Guide">
           {[
-            { label: 'Cut Style',     value: data.editing.cutStyle },
-            { label: 'Transitions',   value: data.editing.transitions },
+            { label: 'Cut Style', value: data.editing.cutStyle },
+            { label: 'Transitions', value: data.editing.transitions },
             { label: 'Text Overlays', value: data.editing.textOverlays },
-            { label: 'Pacing',        value: data.editing.pacing },
+            { label: 'Pacing', value: data.editing.pacing },
           ].map(({ label, value }) => value && (
             <div key={label} className="mb-2.5">
               <Label>{label}</Label>
@@ -323,10 +323,10 @@ function DirectorsCutRenderer({ data }) {
       {data.visual && (
         <Section color="#ff4545" title="🎨 Visual Style">
           {[
-            { label: 'Color Grade',     value: data.visual.colorGrade },
-            { label: 'Caption Style',   value: data.visual.captionStyle },
+            { label: 'Color Grade', value: data.visual.colorGrade },
+            { label: 'Caption Style', value: data.visual.captionStyle },
             { label: 'Animation Style', value: data.visual.animationStyle },
-            { label: '🖼️ Thumbnail',   value: data.visual.thumbnail },
+            { label: '🖼️ Thumbnail', value: data.visual.thumbnail },
           ].map(({ label, value }) => value && (
             <div key={label} className="mb-2.5">
               <Label>{label}</Label>
@@ -339,27 +339,27 @@ function DirectorsCutRenderer({ data }) {
   );
 }
 
-export default function OutputViewer({ platform, authFetch, config }) {
-  const dispatch        = useDispatch();
-  const result          = useSelector(selectResult);
-  const status          = useSelector(selectStatus);
-  const activeTab       = useSelector(selectActiveTab);
-  const scriptId        = useSelector(selectScriptId);       // ← inside component now
-  const directorsCut    = useSelector(selectDirectorsCut);
+export default function OutputViewer({ platform, authFetch, config,isPro, onUpgrade }) {
+  const dispatch = useDispatch();
+  const result = useSelector(selectResult);
+  const status = useSelector(selectStatus);
+  const activeTab = useSelector(selectActiveTab);
+  const scriptId = useSelector(selectScriptId);       // ← inside component now
+  const directorsCut = useSelector(selectDirectorsCut);
   const directorsStatus = useSelector(selectDirectorsStatus);
   const [copied, setCopied] = useState(false);
 
-  const loading          = status === 'loading';
+  const loading = status === 'loading';
   const directorsLoading = directorsStatus === 'loading';
   const p = PLATFORMS.find(x => x.id === platform) || PLATFORMS[0];
   const allTabs = result ? [...TABS, ...(directorsCut ? ['director'] : [])] : TABS;
 
   const getTabContent = () => {
     if (!result) return '';
-    if (activeTab === 'script')   return result.full || '';
-    if (activeTab === 'hooks')    return (result.hooks || []).join('\n\n');
+    if (activeTab === 'script') return result.full || '';
+    if (activeTab === 'hooks') return (result.hooks || []).join('\n\n');
     if (activeTab === 'hashtags') return (result.hashtags || []).join(' ');
-    if (activeTab === 'brief')    return result.brief || '';
+    if (activeTab === 'brief') return result.brief || '';
     return '';
   };
 
@@ -373,8 +373,8 @@ export default function OutputViewer({ platform, authFetch, config }) {
   const handleExport = () => {
     if (!result?.full) return;
     const blob = new Blob([result.full], { type: 'text/plain' });
-    const a    = document.createElement('a');
-    a.href     = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
     a.download = 'script.txt';
     a.click();
     URL.revokeObjectURL(a.href);
@@ -384,16 +384,16 @@ export default function OutputViewer({ platform, authFetch, config }) {
     if (!result?.full || !authFetch) return;
     dispatch({ type: 'directors/setStatus', payload: 'loading' });
     try {
-      const res  = await authFetch('/api/script/directors-cut', {
+      const res = await authFetch('/api/script/directors-cut', {
         method: 'POST',
         body: JSON.stringify({ platform, config, script: result.full }),
       });
-      const data = await res.json();
+      const data = res.data; // ✅ no await
+
       if (data.success) {
         const scriptHash = result.full.slice(0, 120).replace(/\s+/g, ' ').trim();
         dispatch({ type: 'directors/setResult', payload: { result: data.data, scriptHash } });
 
-        // Persist to DB
         if (scriptId) {
           authFetch(`/api/script/${scriptId}/directors-cut`, {
             method: 'PATCH',
@@ -403,15 +403,19 @@ export default function OutputViewer({ platform, authFetch, config }) {
 
         dispatch(setActiveTab('director'));
       }
-    } catch {
+    } catch (err) {
+      // Show upgrade modal if Pro required
+      if (err.response?.data?.code === 'PRO_REQUIRED') {
+       onUpgrade?.();
+      }
       dispatch({ type: 'directors/setStatus', payload: 'failed' });
     }
   };
 
   const wordCount = result?.full ? result.full.split(/\s+/).filter(Boolean).length : 0;
   const charCount = result?.full?.length || 0;
-  const readTime  = wordCount ? Math.ceil(wordCount / 130) : 0;
-  const sections  = result?.full ? (result.full.match(/\[[A-Z ]+\]/g) || []).length : 0;
+  const readTime = wordCount ? Math.ceil(wordCount / 130) : 0;
+  const sections = result?.full ? (result.full.match(/\[[A-Z ]+\]/g) || []).length : 0;
 
   return (
     <div className="mx-8 mb-8 border border-white/7 rounded-xl bg-surface overflow-hidden">
@@ -429,14 +433,23 @@ export default function OutputViewer({ platform, authFetch, config }) {
               className="px-2.5 py-1 text-[11px] font-mono cursor-pointer rounded border transition-all"
               style={{
                 borderColor: copied ? '#63dca3' : 'rgba(255,255,255,0.07)',
-                background:  copied ? 'rgba(99,220,163,0.1)' : 'rgba(255,255,255,0.04)',
-                color:       copied ? '#63dca3' : '#a8b0c0',
+                background: copied ? 'rgba(99,220,163,0.1)' : 'rgba(255,255,255,0.04)',
+                color: copied ? '#63dca3' : '#a8b0c0',
               }}
             >{copied ? '✓ Copied' : '⎘ Copy'}</button>
+            {/* Export — Pro only */}
             <button
-              onClick={handleExport}
-              className="px-2.5 py-1 text-[11px] font-mono cursor-pointer rounded border border-white/7 bg-white/4 text-muted hover:text-text transition-all"
-            >↓ Export</button>
+              onClick={isPro
+                ? handleExport
+                : () => onUpgrade?.()
+              }
+              className="px-2.5 py-1 text-[11px] font-mono cursor-pointer rounded border transition-all"
+              style={{
+                borderColor: isPro ? 'rgba(255,255,255,0.07)' : 'rgba(240,160,75,0.3)',
+                background: isPro ? 'rgba(255,255,255,0.04)' : 'rgba(240,160,75,0.06)',
+                color: isPro ? '#a8b0c0' : '#f0a04b',
+              }}
+            >{isPro ? '↓ Export' : '↑ Pro: Export'}</button>
           </div>
         )}
       </div>
@@ -468,8 +481,8 @@ export default function OutputViewer({ platform, authFetch, config }) {
         </div>
       ) : (
         <div className="p-6">
-          {activeTab === 'script'   && <ScriptRenderer text={result.full} directorsCut={directorsCut} />}
-          {activeTab === 'hooks'    && (
+          {activeTab === 'script' && <ScriptRenderer text={result.full} directorsCut={directorsCut} />}
+          {activeTab === 'hooks' && (
             <div className="flex flex-col gap-4">
               {(result.hooks || []).map((hook, i) => (
                 <div key={i} className="p-4 rounded-xl border border-white/7 bg-white/2">
@@ -507,14 +520,24 @@ export default function OutputViewer({ platform, authFetch, config }) {
           style={{ background: '#0a0c12' }}>
           <div>
             <p className="m-0 text-xs font-syne font-bold text-text">🎬 Want a Director's Cut?</p>
-            <p className="m-0 mt-0.5 text-[11px] font-mono text-muted">Get acting directions, music cues, camera angles & editing guide</p>
+            <p className="m-0 mt-0.5 text-[11px] font-mono text-muted">
+              {isPro
+                ? 'Get acting directions, music cues, camera angles & editing guide'
+                : '✦ Pro feature — upgrade to unlock Director\'s Cut'}
+            </p>
           </div>
           <button
-            onClick={handleDirectorsCut}
+            onClick={isPro ? handleDirectorsCut : () => onUpgrade?.()}
             disabled={directorsLoading}
             className="px-4 py-2 text-[11px] font-mono cursor-pointer rounded-lg border shrink-0 transition-all hover:bg-accent/15"
-            style={{ borderColor: 'rgba(99,220,163,0.4)', background: 'rgba(99,220,163,0.08)', color: '#63dca3' }}
-          >✦ Generate Director's Cut</button>
+            style={{
+              borderColor: isPro ? 'rgba(99,220,163,0.4)' : 'rgba(240,160,75,0.4)',
+              background: isPro ? 'rgba(99,220,163,0.08)' : 'rgba(240,160,75,0.08)',
+              color: isPro ? '#63dca3' : '#f0a04b',
+            }}
+          >
+            {isPro ? '✦ Generate Director\'s Cut' : '↑ Upgrade to Pro'}
+          </button>
         </div>
       )}
 
@@ -523,8 +546,8 @@ export default function OutputViewer({ platform, authFetch, config }) {
         <div className="grid grid-cols-4 gap-px border-t border-white/7 bg-white/7">
           <StatCell value={wordCount.toLocaleString()} label="Words" />
           <StatCell value={charCount.toLocaleString()} label="Characters" />
-          <StatCell value={`${readTime}m`}             label="Read Time" />
-          <StatCell value={sections}                    label="Sections" />
+          <StatCell value={`${readTime}m`} label="Read Time" />
+          <StatCell value={sections} label="Sections" />
         </div>
       )}
     </div>

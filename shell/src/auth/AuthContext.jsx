@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import axios from 'axios';
 
 const RT_KEY = 'sf_rt';
 
@@ -47,104 +48,113 @@ export function AuthProvider({ children }) {
     const rt = RT.load();
     if (!rt) { clearSession(); return false; }
     try {
-      const res = await fetch(`${__API_BASE_URL__}/api/auth/refresh`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ refreshToken: rt }),
-      });
-      if (!res.ok) { clearSession(); return false; }
-      const data    = await res.json();
-      const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
-      applyTokens(data.accessToken, data.refreshToken, {
+      const res = await axios.post(
+        `${__API_BASE_URL__}/api/auth/refresh`,
+        { refreshToken: rt },
+        { withCredentials: true }
+      );
+      const { accessToken: at, refreshToken: newRt } = res.data;
+      const base64  = at.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
+      applyTokens(at, newRt, {
         id: payload.sub, name: payload.name, email: payload.email, avatar: payload.avatar,
       });
       return true;
-    } catch { clearSession(); return false; }
+    } catch {
+      clearSession();
+      return false;
+    }
   }, [applyTokens, clearSession]);
 
   const handleCallback = useCallback((hash) => {
-  try {
-    const p  = new URLSearchParams(hash.replace(/^#/, ''));
-    const at = p.get('access');
-    const rt = p.get('refresh');
-    if (!at || !rt) return false;
+    try {
+      const p  = new URLSearchParams(hash.replace(/^#/, ''));
+      const at = p.get('access');
+      const rt = p.get('refresh');
+      if (!at || !rt) return false;
+      const base64  = at.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      const payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
+      applyTokens(at, rt, {
+        id: payload.sub, name: payload.name, email: payload.email, avatar: payload.avatar,
+      });
+      window.history.replaceState(null, '', window.location.pathname);
+      return true;
+    } catch (e) {
+      console.error('[Auth] handleCallback error:', e);
+      return false;
+    }
+  }, [applyTokens]);
 
-    // ✅ Safe base64 decode that handles URL-safe chars
-    const base64 = at.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(decodeURIComponent(escape(atob(base64))));
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('access=')) {
+      const ok = handleCallback(hash);
+      if (!ok) clearSession();
+      setLoading(false);
+    } else {
+      doRefresh().finally(() => setLoading(false));
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
 
-    applyTokens(at, rt, {
-      id: payload.sub, name: payload.name, email: payload.email, avatar: payload.avatar,
-    });
-    window.history.replaceState(null, '', window.location.pathname);
-    return true;
-  } catch(e) { 
-    console.error('[Auth] handleCallback error:', e); // ← add this to see exact error
-    return false; 
-  }
-}, [applyTokens]);
+  const logout = useCallback(async () => {
+    const rt = RT.load();
+    try {
+      await axios.post(
+        `${__API_BASE_URL__}/api/auth/logout`,
+        { refreshToken: rt },
+        {
+          withCredentials: true,
+          headers: {
+            ...(atRef.current ? { Authorization: `Bearer ${atRef.current}` } : {}),
+          },
+        }
+      );
+    } catch {}
+    clearSession();
+    try {
+      sessionStorage.removeItem('sf_restored');
+      sessionStorage.removeItem('sf_directors_map');
+      sessionStorage.removeItem('sf_active_history_id');
+    } catch {}
+    window.location.href = '/';
+  }, [clearSession]);
 
-useEffect(() => {
-  const hash = window.location.hash;
-  const path = window.location.pathname;
-  console.log('[Auth] Mount - pathname:', path);
-  console.log('[Auth] Mount - hash:', hash);
-  console.log('[Auth] Mount - full URL:', window.location.href);
-
-  if (hash.includes('access=')) {
-    console.log('[Auth] Processing callback...');
-    const ok = handleCallback(hash);
-    console.log('[Auth] Callback result:', ok);
-    if (!ok) clearSession();
-    setLoading(false);
-  } else {
-    console.log('[Auth] No callback, trying silent refresh...');
-    doRefresh().finally(() => setLoading(false));
-  }
-  return () => { if (timerRef.current) clearTimeout(timerRef.current); };
-}, []);
-
-const logout = useCallback(async () => {
-  const rt = RT.load();
-  try {
-    await fetch(`${__API_BASE_URL__}/api/auth/logout`, {
-      method:  'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(atRef.current ? { Authorization: `Bearer ${atRef.current}` } : {}),
-      },
-      body: JSON.stringify({ refreshToken: rt }),
-    });
-  } catch {}
-  clearSession();
-  // Clear all persisted state so landing page doesn't auto-redirect
-  try {
-    sessionStorage.removeItem('sf_restored');
-    sessionStorage.removeItem('sf_directors_map');
-    sessionStorage.removeItem('sf_active_history_id');
-  } catch {}
-  window.location.href = '/';
-}, [clearSession]);
-
+  // Main authenticated request helper
+  // Returns axios response — access res.data directly (no .json() needed)
   const authFetch = useCallback(async (url, options = {}) => {
     const fullUrl = url.startsWith('http') ? url : `${__API_BASE_URL__}${url}`;
-    const doFetch = (token) => fetch(fullUrl, {
-      ...options,
+    const { method = 'GET', body, headers = {} } = options;
+
+    const makeRequest = (token) => axios({
+      url:            fullUrl,
+      method,
+      data:           body ? JSON.parse(body) : undefined,
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...headers,
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
-    let res = await doFetch(atRef.current);
-    if (res.status === 401) {
-      const body = await res.json().catch(() => ({}));
-      if (body.code === 'TOKEN_EXPIRED') {
+
+    try {
+      const res = await makeRequest(atRef.current);
+      return res;
+    } catch (err) {
+      // Axios throws on non-2xx — check if it's a 401 TOKEN_EXPIRED
+      if (err.response?.status === 401 && err.response?.data?.code === 'TOKEN_EXPIRED') {
         const refreshed = await doRefresh();
-        if (refreshed) res = await doFetch(atRef.current);
+        if (refreshed) {
+          try {
+            return await makeRequest(atRef.current);
+          } catch (retryErr) {
+            throw retryErr;
+          }
+        }
       }
+      throw err;
     }
-    return res;
   }, [doRefresh]);
 
   return (

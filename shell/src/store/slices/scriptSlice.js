@@ -18,17 +18,16 @@ export const generateScript = createAsyncThunk(
         method: 'POST',
         body: JSON.stringify({ platform, config }),
       });
-      if (!res.ok) {
-        const err = await res.json();
-        return rejectWithValue(err.error || 'Generation failed');
-      }
-      const data = await res.json();
+      // ✅ res.data is a plain object, no await needed
+      const data = res.data;
       return {
         result:   data.data,
         scriptId: data.meta.scriptId,
       };
     } catch (e) {
-      return rejectWithValue(e.message || 'Network error');
+      // ✅ Axios throws on non-2xx, error response is in e.response.data
+      const message = e.response?.data?.error || e.message || 'Generation failed';
+      return rejectWithValue(message);
     }
   }
 );

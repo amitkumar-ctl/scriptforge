@@ -220,10 +220,15 @@ function ContactForm() {
 export default function LandingPage() {
   const { user }  = useAuth();
   const navigate  = useNavigate();
+
   const [showModal,      setShowModal]      = useState(false);
   const [demoStarted,    setDemoStarted]    = useState(false);
   const [demoPlatform,   setDemoPlatform]   = useState('youtube');
   const [demoGenerating, setDemoGenerating] = useState(false);
+
+  // ── Payment state ─────────────────────────────────────────
+  const [billingPeriod,  setBillingPeriod]  = useState('monthly');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const demoScript = DEMO_SCRIPTS[demoPlatform] || DEMO_SCRIPTS.youtube;
   const { displayed, done } = useTypewriter(demoScript, 12, demoStarted);
@@ -232,7 +237,54 @@ export default function LandingPage() {
     if (user) navigate('/app');
   }, [user]);
 
+  // Check for payment success/cancel in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('payment') === 'success') {
+      alert('🎉 Welcome to ScriptForge Pro! Your subscription is now active.');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (params.get('payment') === 'cancelled') {
+      console.log('Payment cancelled');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
+
   const handleGetStarted = () => setShowModal(true);
+
+  // ── Upgrade to Pro handler ────────────────────────────────
+  const handleUpgrade = async () => {
+    if (!user) {
+      setShowModal(true);
+      return;
+    }
+
+    setCheckoutLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/payments/create-checkout`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan:      billingPeriod,       // 'monthly' or 'yearly'
+          userId:    user.id,
+          userEmail: user.email,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url; // redirect to Lemon Squeezy checkout
+      } else {
+        alert('Failed to start checkout. Please try again.');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      alert('Something went wrong. Please try again.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
 
   const handleDemoGenerate = () => {
     setDemoStarted(false);
@@ -306,7 +358,7 @@ export default function LandingPage() {
         <div className="flex flex-wrap gap-8 md:gap-12 justify-center mt-16">
           {[
             { value: '6',    label: 'Platforms' },
-            { value: '10',  label: 'Script Styles' },
+            { value: '10',   label: 'Script Styles' },
             { value: '<30s', label: 'Generation Time' },
             { value: '100%', label: 'AI-Powered' },
           ].map(s => (
@@ -346,7 +398,7 @@ export default function LandingPage() {
           <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-16">Three steps to your script.</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-              { step: '01', title: 'Pick your platform',   desc: 'Choose from YouTube, TikTok, Instagram, LinkedIn, Podcast, Twitter', icon: '⊞', color: 'text-accent' },
+              { step: '01', title: 'Pick your platform',    desc: 'Choose from YouTube, TikTok, Instagram, LinkedIn, Podcast, Twitter', icon: '⊞', color: 'text-accent' },
               { step: '02', title: 'Configure your script', desc: 'Set your topic, tone, hook style, duration and target audience. The more specific, the better.', icon: '⚙', color: 'text-[#4fa3e0]' },
               { step: '03', title: 'Generate & use',        desc: 'Get a complete, ready-to-record script with hooks, hashtags, and a content brief. In seconds.', icon: '✦', color: 'text-[#f0a04b]' },
             ].map(s => (
@@ -370,7 +422,6 @@ export default function LandingPage() {
             <p className="text-sm text-muted">Pick a platform and watch ScriptForge generate a script in real time.</p>
           </div>
 
-          {/* Platform picker */}
           <div className="flex flex-wrap gap-2 justify-center mb-6">
             {PLATFORMS.filter(p => DEMO_SCRIPTS[p.id]).map(p => (
               <button
@@ -378,9 +429,9 @@ export default function LandingPage() {
                 onClick={() => { setDemoPlatform(p.id); setDemoStarted(false); }}
                 className="px-4 py-2 rounded-full font-mono text-xs flex items-center gap-1.5 cursor-pointer transition-all"
                 style={{
-                  border: `1px solid ${demoPlatform === p.id ? p.color : 'rgba(255,255,255,0.07)'}`,
+                  border:     `1px solid ${demoPlatform === p.id ? p.color : 'rgba(255,255,255,0.07)'}`,
                   background: demoPlatform === p.id ? p.color + '15' : 'transparent',
-                  color: demoPlatform === p.id ? p.color : '#a8b0c0',
+                  color:      demoPlatform === p.id ? p.color : '#a8b0c0',
                 }}
               >
                 <span>{p.icon}</span>{p.label}
@@ -388,7 +439,6 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Script output box */}
           <div className="bg-surface border border-white/7 rounded-2xl overflow-hidden mb-5">
             <div className="flex items-center justify-between px-5 py-3 border-b border-white/7 bg-surface2">
               <div className="font-syne font-bold text-sm">
@@ -437,47 +487,77 @@ export default function LandingPage() {
         <div className="max-w-2xl mx-auto text-center">
           <p className="text-xs text-accent uppercase tracking-[0.15em] mb-4">Pricing</p>
           <h2 className="font-syne font-extrabold text-3xl md:text-4xl mb-4">Simple, honest pricing.</h2>
-          <p className="text-sm text-muted mb-12">We're in early access. Right now ScriptForge is completely free while we build and improve.</p>
+          <p className="text-sm text-muted mb-10">Start free. Upgrade when you're ready.</p>
+
+          {/* ── Billing toggle ── */}
+          <div className="inline-flex items-center gap-1 p-1 rounded-full border border-white/10 bg-surface mb-10">
+            {[
+              { id: 'monthly', label: 'Monthly' },
+              { id: 'yearly',  label: 'Annual  · save 30%' },
+            ].map(period => (
+              <button
+                key={period.id}
+                onClick={() => setBillingPeriod(period.id)}
+                className="px-5 py-2 rounded-full font-mono text-xs cursor-pointer transition-all border-none"
+                style={{
+                  background: billingPeriod === period.id ? 'rgba(99,220,163,0.15)' : 'transparent',
+                  color:      billingPeriod === period.id ? '#63dca3' : '#a8b0c0',
+                  outline:    billingPeriod === period.id ? '1px solid rgba(99,220,163,0.3)' : 'none',
+                }}
+              >
+                {period.label}
+              </button>
+            ))}
+          </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {[
-              {
-                name: 'Free', price: '$0', period: 'forever',
-                color: '#a8b0c0', borderClass: 'border-muted/20',
-                features: ['5 scripts per month', 'All 6 platforms', 'Script history (7 days)', 'Hooks & hashtags'],
-                cta: 'Get Started Free',
-                ctaClass: 'border border-white/10 bg-transparent text-text hover:border-white/25',
-              },
-              {
-                name: 'Pro', price: 'Coming Soon', period: '',
-                color: '#63dca3', borderClass: 'border-accent/20', badge: 'Soon',
-                bg: 'bg-accent/4',
-                features: ["Unlimited scripts", 'All 6 platforms', 'Unlimited history', "Director's Cut", 'Export PDF/DOCX', 'Priority generation'],
-                cta: 'Join Waitlist',
-                ctaClass: 'border-none bg-gradient-accent text-bg hover:-translate-y-px shadow-[0_4px_16px_rgba(99,220,163,0.2)]',
-              },
-            ].map(plan => (
-              <div key={plan.name} className={`p-8 rounded-2xl border ${plan.borderClass} ${plan.bg || 'bg-surface'} text-left relative`}>
-                {plan.badge && (
-                  <div className="absolute top-4 right-4 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-xs text-accent font-mono">{plan.badge}</div>
-                )}
-                <div className="font-syne font-extrabold text-lg mb-2">{plan.name}</div>
-                <div className="font-syne font-extrabold text-3xl mb-1" style={{ color: plan.color }}>{plan.price}</div>
-                {plan.period && <div className="text-xs text-muted mb-6">{plan.period}</div>}
-                <div className="h-px bg-white/5 my-4" />
-                <div className="flex flex-col gap-2.5 mb-7">
-                  {plan.features.map(f => (
-                    <div key={f} className="flex items-center gap-2.5 text-sm text-muted">
-                      <span className="text-xs" style={{ color: plan.color }}>✓</span>{f}
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={handleGetStarted}
-                  className={`w-full py-3 rounded-xl cursor-pointer font-syne font-bold text-sm transition-all ${plan.ctaClass}`}
-                >{plan.cta}</button>
+            {/* Free Plan */}
+            <div className="p-8 rounded-2xl border border-white/10 bg-surface text-left">
+              <div className="font-syne font-extrabold text-lg mb-2">Free</div>
+              <div className="font-syne font-extrabold text-3xl mb-1" style={{ color: '#a8b0c0' }}>$0</div>
+              <div className="text-xs text-muted mb-6">forever</div>
+              <div className="h-px bg-white/5 my-4" />
+              <div className="flex flex-col gap-2.5 mb-7">
+                {['5 scripts per month', 'All 6 platforms', 'Script history (7 days)', 'Hooks & hashtags'].map(f => (
+                  <div key={f} className="flex items-center gap-2.5 text-sm text-muted">
+                    <span className="text-xs text-[#a8b0c0]">✓</span>{f}
+                  </div>
+                ))}
               </div>
-            ))}
+              <button
+                onClick={handleGetStarted}
+                className="w-full py-3 rounded-xl cursor-pointer font-syne font-bold text-sm transition-all border border-white/10 bg-transparent text-text hover:border-white/25"
+              >Get Started Free</button>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="p-8 rounded-2xl border border-accent/20 bg-accent/4 text-left relative">
+              <div className="absolute top-4 right-4 px-2.5 py-0.5 rounded-full bg-accent/15 border border-accent/30 text-xs text-accent font-mono">
+                {billingPeriod === 'yearly' ? 'Best Value' : 'Popular'}
+              </div>
+              <div className="font-syne font-extrabold text-lg mb-2">Pro</div>
+              <div className="font-syne font-extrabold text-3xl mb-1" style={{ color: '#63dca3' }}>
+                {billingPeriod === 'monthly' ? '$3.23' : '$26.87'}
+              </div>
+              <div className="text-xs text-muted mb-6">
+                {billingPeriod === 'monthly' ? 'per month' : 'per year · ~$1/mo'}
+              </div>
+              <div className="h-px bg-white/5 my-4" />
+              <div className="flex flex-col gap-2.5 mb-7">
+                {['Unlimited scripts', 'All 6 platforms', 'Unlimited history', "Director's Cut mode", 'Export PDF / DOCX', 'Priority generation'].map(f => (
+                  <div key={f} className="flex items-center gap-2.5 text-sm text-muted">
+                    <span className="text-xs text-accent">✓</span>{f}
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={handleUpgrade}
+                disabled={checkoutLoading}
+                className="w-full py-3 rounded-xl cursor-pointer font-syne font-bold text-sm transition-all border-none bg-gradient-accent text-bg hover:-translate-y-px shadow-[0_4px_16px_rgba(99,220,163,0.2)] disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {checkoutLoading ? '⟳ Loading…' : `Upgrade to Pro →`}
+              </button>
+            </div>
           </div>
         </div>
       </section>
