@@ -5,6 +5,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const cron = require('node-cron');
+const { expireStaleSubscriptions } = require('./src/jobs/expireSubscriptions');
 const { connectDB } = require('./src/db/database');
 const passport = require('./src/auth/passport');   // registers strategies
 
@@ -20,6 +22,12 @@ const app  = express();
 const PORT = process.env.PORT || 4000;
 
 app.set('trust proxy', 1);
+
+// Run every day at midnight
+cron.schedule('0 0 * * *', async () => {
+  console.log('[Cron] Running subscription expiry check...');
+  await expireStaleSubscriptions();
+});
 
 // ─── Security ─────────────────────────────────────────────────────────
 app.use(helmet({
