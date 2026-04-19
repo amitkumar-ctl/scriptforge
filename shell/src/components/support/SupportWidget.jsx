@@ -21,25 +21,26 @@ export default function SupportWidget() {
   if (!user) return null;
 
   const handleSubmit = async () => {
-    if (!subject || !message.trim()) {
-      setError('Please select a subject and enter your message.');
-      return;
-    }
-    setStatus('sending');
-    setError(null);
-    try {
-      const res  = await authFetch('/api/support/ticket', {
-        method: 'POST',
-        body:   JSON.stringify({ subject, message }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit');
-      setStatus('success');
-    } catch (err) {
-      setError(err.message);
-      setStatus('error');
-    }
-  };
+  if (!subject || !message.trim()) {
+    setError('Please select a subject and enter your message.');
+    return;
+  }
+  setStatus('sending');
+  setError(null);
+  try {
+    await authFetch('/api/support/ticket', {
+      method: 'POST',
+      body:   JSON.stringify({ subject, message }),
+    });
+    // ✅ axios throws on non-2xx so if we reach here it succeeded
+    setStatus('success');
+  } catch (err) {
+    // ✅ axios error message is in err.response.data.error
+    const message = err.response?.data?.error || err.message || 'Failed to submit';
+    setError(message);
+    setStatus('error');
+  }
+};
 
   const handleClose = () => {
     setOpen(false);
