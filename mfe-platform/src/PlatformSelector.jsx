@@ -20,7 +20,7 @@ export default function PlatformSelector({ selected, onSelect }) {
   return (
     <div className="px-8 py-6">
       <p className="text-[9px] tracking-[0.12em] uppercase text-muted mb-3 font-mono">
-        ① Select Platform
+         Select Platform
       </p>
       <div className="flex flex-wrap gap-2.5">
         {PLATFORMS.map((p) => {

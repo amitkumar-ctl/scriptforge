@@ -10,7 +10,7 @@ export default function PlanBadge() {
 
   if (isPro) {
     return (
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 10, background: 'rgba(99,220,163,0.1)', color: '#63dca3', border: '1px solid rgba(99,220,163,0.3)', fontFamily: '"DM Mono", monospace' }}>
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 20, fontSize: 15, background: 'rgba(99,220,163,0.1)', color: '#63dca3', border: '1px solid rgba(99,220,163,0.3)', fontFamily: '"DM Mono", monospace' }}>
         ✦ Pro
       </div>
     );
@@ -18,7 +18,7 @@ export default function PlanBadge() {
 
   return (
     <>
-      <button onClick={() => setShowModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 20, fontSize: 10, background: 'rgba(240,160,75,0.08)', color: '#f0a04b', border: '1px solid rgba(240,160,75,0.25)', fontFamily: '"DM Mono", monospace', cursor: 'pointer' }}>
+      <button onClick={() => setShowModal(true)} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 14px', borderRadius: 20, fontSize: 15, background: 'rgba(240,160,75,0.08)', color: '#f0a04b', border: '1px solid rgba(240,160,75,0.25)', fontFamily: '"DM Mono", monospace', cursor: 'pointer' }}>
         ↑ Upgrade
       </button>
       {showModal && <PricingModal onClose={() => setShowModal(false)} />}

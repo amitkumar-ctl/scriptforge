@@ -123,7 +123,7 @@ router.post('/verify', requireAuth, async (req, res, next) => {
           cancelledAt:      null,
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     console.log(`[Billing] Subscription activated for user ${req.user.id} — ${period}`);

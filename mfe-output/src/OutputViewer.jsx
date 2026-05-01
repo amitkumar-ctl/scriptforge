@@ -473,6 +473,33 @@ export default function OutputViewer({ platform, authFetch, config,isPro, onUpgr
         </div>
       )}
 
+      {/* Director's Cut CTA */}
+      {result && !directorsCut && !directorsLoading && (
+        <div className="px-6 py-4 border-t border-white/7 flex items-center justify-between gap-4"
+          style={{ background: '#0a0c12' }}>
+          <div>
+            <p className="m-0 text-xs font-syne font-bold text-text">🎬 Want a Director's Cut?</p>
+            <p className="m-0 mt-0.5 text-[11px] font-mono text-muted">
+              {isPro
+                ? 'Get acting directions, music cues, camera angles & editing guide'
+                : '✦ Pro feature — upgrade to unlock Director\'s Cut'}
+            </p>
+          </div>
+          <button
+            onClick={isPro ? handleDirectorsCut : () => onUpgrade?.()}
+            disabled={directorsLoading}
+            className="px-4 py-2 text-[11px] font-mono cursor-pointer rounded-lg border shrink-0 transition-all hover:bg-accent/15"
+            style={{
+              borderColor: isPro ? 'rgba(99,220,163,0.4)' : 'rgba(240,160,75,0.4)',
+              background: isPro ? 'rgba(99,220,163,0.08)' : 'rgba(240,160,75,0.08)',
+              color: isPro ? '#63dca3' : '#f0a04b',
+            }}
+          >
+            {isPro ? '✦ Generate Director\'s Cut' : '↑ Upgrade to Pro'}
+          </button>
+        </div>
+      )}
+
       {/* Body */}
       {loading ? <SkeletonLoader /> : !result ? (
         <div className="flex flex-col items-center justify-center min-h-[280px] gap-3 text-muted">
@@ -511,33 +538,6 @@ export default function OutputViewer({ platform, authFetch, config,isPro, onUpgr
           {activeTab === 'director' && (
             directorsLoading ? <SkeletonLoader /> : <DirectorsCutRenderer data={directorsCut} />
           )}
-        </div>
-      )}
-
-      {/* Director's Cut CTA */}
-      {result && !directorsCut && !directorsLoading && (
-        <div className="px-6 py-4 border-t border-white/7 flex items-center justify-between gap-4"
-          style={{ background: '#0a0c12' }}>
-          <div>
-            <p className="m-0 text-xs font-syne font-bold text-text">🎬 Want a Director's Cut?</p>
-            <p className="m-0 mt-0.5 text-[11px] font-mono text-muted">
-              {isPro
-                ? 'Get acting directions, music cues, camera angles & editing guide'
-                : '✦ Pro feature — upgrade to unlock Director\'s Cut'}
-            </p>
-          </div>
-          <button
-            onClick={isPro ? handleDirectorsCut : () => onUpgrade?.()}
-            disabled={directorsLoading}
-            className="px-4 py-2 text-[11px] font-mono cursor-pointer rounded-lg border shrink-0 transition-all hover:bg-accent/15"
-            style={{
-              borderColor: isPro ? 'rgba(99,220,163,0.4)' : 'rgba(240,160,75,0.4)',
-              background: isPro ? 'rgba(99,220,163,0.08)' : 'rgba(240,160,75,0.08)',
-              color: isPro ? '#63dca3' : '#f0a04b',
-            }}
-          >
-            {isPro ? '✦ Generate Director\'s Cut' : '↑ Upgrade to Pro'}
-          </button>
         </div>
       )}
 

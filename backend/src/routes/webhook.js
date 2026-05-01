@@ -70,7 +70,7 @@ router.post('/razorpay', async (req, res) => {
             currentPeriodEnd:   sub.current_end    ? new Date(sub.current_end    * 1000) : null,
             renewsAt:           sub.charge_at      ? new Date(sub.charge_at      * 1000) : null,
             cancelledAt:        null,
-          }, { upsert: true, new: true });
+          }, { upsert: true, returnDocument: 'after' });
           break;
 
         case 'subscription.pending':
