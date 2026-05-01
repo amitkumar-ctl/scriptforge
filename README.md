@@ -10,28 +10,28 @@ AI-powered script generator built with **Webpack Module Federation**, **React 18
 ┌─────────────────────────────────────────────────────────────┐
 │                        BROWSER                              │
 │                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │              Shell App  :3000                        │   │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐  │   │
-│  │  │ Topbar   │  │ Sidebar  │  │  Views Router    │  │   │
-│  │  │ (shell)  │  │ (shell)  │  │  (shell)         │  │   │
-│  │  └──────────┘  └──────────┘  └────────┬─────────┘  │   │
-│  │                                        │             │   │
-│  │         Lazy-loaded remote MFEs ───────┘             │   │
-│  │  ┌──────────────┐  ┌──────────────┐                 │   │
-│  │  │ mfe-platform │  │  mfe-config  │                 │   │
-│  │  │    :3001     │  │    :3002     │                 │   │
-│  │  └──────────────┘  └──────────────┘                 │   │
-│  │  ┌──────────────┐  ┌──────────────┐                 │   │
-│  │  │  mfe-output  │  │ mfe-history  │                 │   │
-│  │  │    :3003     │  │    :3004     │                 │   │
-│  │  └──────────────┘  └──────────────┘                 │   │
-│  │                                                      │   │
-│  │  ┌────────────────────────────────────────────────┐ │   │
-│  │  │         Redux Store (singleton, shared)         │ │   │
-│  │  │  script slice │ ui slice │ history slice        │ │   │
-│  │  └────────────────────────────────────────────────┘ │   │
-│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │              Shell App  :4001                       │    │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────────────┐   │    │
+│  │  │ Topbar   │  │ Sidebar  │  │  Views Router    │   │    │
+│  │  │ (shell)  │  │ (shell)  │  │  (shell)         │   │    │
+│  │  └──────────┘  └──────────┘  └────────┬─────────┘   │    │
+│  │                                       │             │    │
+│  │         Lazy-loaded remote MFEs ──────┘             │    │
+│  │  ┌──────────────┐  ┌──────────────┐                 │    │
+│  │  │ mfe-platform │  │  mfe-config  │                 │    │ 
+│  │  │    :4002     │  │    :4003     │                 │    │
+│  │  └──────────────┘  └──────────────┘                 │    │
+│  │  ┌──────────────┐  ┌──────────────┐                 │    │
+│  │  │  mfe-output  │  │ mfe-history  │                 │    │
+│  │  │    :4004     │  │    :4005     │                 │    │
+│  │  └──────────────┘  └──────────────┘                 │    │
+│  │                                                     │    │
+│  │  ┌────────────────────────────────────────────────┐ │    │
+│  │  │         Redux Store (singleton, shared)        │ │    │
+│  │  │  script slice │ ui slice │ history slice       │ │    │
+│  │  └────────────────────────────────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                           │ HTTP POST /api/script/generate
                           ▼
@@ -55,11 +55,11 @@ AI-powered script generator built with **Webpack Module Federation**, **React 18
 
 | Service          | Port  | Description                        |
 |------------------|-------|------------------------------------|
-| `shell`          | 3000  | Host app — orchestrates all MFEs   |
-| `mfe-platform`   | 3001  | Platform selector MFE              |
-| `mfe-config`     | 3002  | Script configuration form MFE      |
-| `mfe-output`     | 3003  | Output viewer MFE                  |
-| `mfe-history`    | 3004  | History panel MFE                  |
+| `shell`          | 4001  | Host app — orchestrates all MFEs   |
+| `mfe-platform`   | 4002  | Platform selector MFE              |
+| `mfe-config`     | 4003  | Script configuration form MFE      |
+| `mfe-output`     | 4004  | Output viewer MFE                  |
+| `mfe-history`    | 4005  | History panel MFE                  |
 | `backend`        | 4000  | Node.js API proxy (Anthropic)      |
 
 ---
